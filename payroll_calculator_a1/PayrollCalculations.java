@@ -15,4 +15,14 @@ public class PayrollCalculations
     public static double grossPay(double hours, double payRate) {
        return regularPay(hours, payRate) + weeklyOvertimePay(hours,payRate);
     }
+
+    public static boolean validPay(String testString) {
+        boolean isValid = true;
+        for ( int i = 0; i < testString.length(); i++) {
+            if (!Character.isDigit(testString.charAt(i)) && 
+                testString.charAt(i) != '.') 
+                { isValid = false; }
+        }
+        return isValid;
+    }
 }

@@ -1,123 +1,317 @@
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.event.MouseInputAdapter;
 
-import java.awt.Color;
+import org.w3c.dom.events.MouseEvent;
+
 import javax.swing.Timer;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.awt.event.ActionEvent;
+
+
 
 public class PayrollFrame extends JFrame {
+
+    private JPanel companyNamePanel;
+
+    private JLabel companyNameLabel;
+    private JLabel companyNameLabel2;
+    private JLabel dollarSigns;
+    //////////////////////////////////
+    private JPanel employeeInfoPanel;
+
+    private JLabel employeeNameLabel;
+    private JTextField employeeNameField;
+
     private JLabel hoursWorkedLabel;
     private JTextField hoursWorkedField;
 
-    private JLabel wageLabel;
-    private JTextField wageField;
+    private JLabel hourlyRateLabel;
+    private JTextField hourlyRateField;
+    //////////////////////////////////
 
+    private JPanel calculatedInfoPanel;
+    private JLabel nameOfEmployeeLabel;
     private JLabel regularPayLabel;
-    private JTextField regularPayField;
-
     private JLabel overtimePayLabel;
-    private JTextField overtimePayField;
-
     private JLabel grossPayLabel;
-    private JTextField grossPayField;
+    private JLabel employeeNameValue;
+    private JLabel regularPayValue;
+    private JLabel overtimePayValue;
+    private JLabel grossPayValue;
 
-    private JButton calculatePayButton;
-    private JButton exitButton;
+    //////////////////////////////////
+    private JPanel buttonsPanel;
+    private JButton clearButton;
+    private JButton computeButton;
+    private JButton quitButton;
 
+    ////////////////////////////////
+    // layouts
+    private FlowLayout flowLayout;
+
+    //Frame dimensions
+    private int frameHeight = 625;
     private int frameWidth = 500;
-    private int frameHeight = 600;
 
-    private int panelOneSize = 125;
-    private int panelTwoSize = 150;
-    private int panelThreeSize = 200;
-    private int panelFourSize = 125;
 
-    // First panel with name of company
-    public JPanel PanelOne() {
-        JPanel panel = new JPanel();
-        panel.setForeground(Color.WHITE);
-        panel.setBackground(new Color(51, 102, 0));
-        panel.setBounds(0, 0, frameWidth, panelOneSize);
-        return panel;
-    }
-
-    // Input employee information panel
-    public JPanel PanelTwo() {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(0, 64, 255));
-        panel.setBounds(0, panelOneSize, frameWidth, panelTwoSize);
-        return panel;
-    }
-
-    // panel that displays calculated information
-    public JPanel PanelThree() {
-        JPanel panel = new JPanel();
-        int location = panelOneSize + panelTwoSize;
-        panel.setBackground(new Color(34,131,60));
-        panel.setBounds(0, location, frameWidth, panelThreeSize);
-        return panel;
-    }
-
-    // panel with the command buttons.
-    public JPanel PanelFour() {
-        JPanel panel = new JPanel();
-        int location = panelOneSize + panelTwoSize + panelThreeSize;
-        panel.setBounds(0, location, frameWidth, panelFourSize);
-        panel.setBackground(new Color(0, 0, 0));
-        return panel;
-    }
-
+    private PayrollCalculations payrollCalculator;
+    private Timer closeTimer;
+    private int timeToClose = 3000;
     // Overarching frame that will contain all of the panels.
     public PayrollFrame() {
         super("Payroll Frame");
-        add(PanelOne());
-        add(PanelTwo());
-        add(PanelThree());
-        add(PanelFour());
+        flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 0);
+        setTitle("Johnson's Wholesale");
+        setSize(frameWidth, frameHeight);
+        setResizable(false);
+        setLayout(flowLayout);
+        setLocationRelativeTo(null);
+        Font font = new Font("Helvetica Neue", Font.BOLD, 25);
+        Font font2 = new Font("Helvetica Neue", Font.PLAIN, 16);
+
+        // company name and information panel
+        companyNamePanel = new JPanel();
+        Dimension panelOneSize = new Dimension(frameWidth, 125);
+        companyNamePanel.setPreferredSize(panelOneSize);
+        companyNamePanel.setBackground(new Color(56, 119, 128));
+        companyNamePanel.setLayout(new GridLayout(3, 1));
+
+        companyNameLabel = new JLabel("<html><u>~*Johnson's Wholesale*~<u></html>");
+        companyNameLabel.setHorizontalAlignment(JLabel.CENTER);
+        companyNameLabel.setForeground(Color.white);
+        companyNameLabel.setFont(font);
+        companyNamePanel.add(companyNameLabel);
+
+        companyNameLabel2 = new JLabel("<html><u><i>~Employee Payroll System~<i><u></html>");
+        companyNameLabel2.setHorizontalAlignment(JLabel.CENTER);
+        companyNameLabel2.setForeground(Color.white);
+        companyNameLabel2.setFont(font);
+        companyNamePanel.add(companyNameLabel2);
+
+        dollarSigns = new JLabel("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
+        dollarSigns.setHorizontalAlignment(JLabel.CENTER);
+        dollarSigns.setForeground(new Color(192,192,192));
+        dollarSigns.setFont(font);
+        companyNamePanel.add(dollarSigns);
+
+        add(companyNamePanel);
+
+        // employee info panel
+        employeeInfoPanel = new JPanel();
+        employeeInfoPanel.setLayout(new GridBagLayout());
+        Dimension panelTwoSize = new Dimension(frameWidth, 175);
+        employeeInfoPanel.setBackground(new Color(210, 204, 161));
+        employeeInfoPanel.setPreferredSize(panelTwoSize);
+
+        // Hours Worked Section
+        employeeNameLabel = new JLabel("<html><u><i>Employee Name: <i><u></html>");
+        employeeNameLabel.setFont(font2);
+        employeeNameField = new JTextField(20);
+        employeeNameField.setHorizontalAlignment(JTextField.CENTER);
+        employeeNameField.setFont(font2);
+
+        hoursWorkedLabel = new JLabel("<html><u><i>Hours Worked: <i><u></html>");
+        hoursWorkedLabel.setFont(font2);
+        hoursWorkedField = new JTextField(20);
+        hoursWorkedField.setHorizontalAlignment(JTextField.CENTER);
+        hoursWorkedField.setFont(font2);
+
+        hourlyRateLabel = new JLabel("<html><u><i>Hourly Pay Rate: <i><u>$</html>");
+        hourlyRateLabel.setFont(font2);
+        hourlyRateField = new JTextField(20);
+        hourlyRateField.setHorizontalAlignment(JTextField.CENTER);
+        hourlyRateField.setFont(font2);
+
+        GridBagConstraints location = new GridBagConstraints();
+        location.insets = new Insets(9, 9, 9, 9);
+        location.gridx = 0;
+        location.gridy = 0;
+        employeeInfoPanel.add(employeeNameLabel, location);
+        location.gridx = 1;
+        location.gridy = 0;
+        employeeInfoPanel.add(employeeNameField, location);
+        location.gridx = 0;
+        location.gridy = 1;
+        employeeInfoPanel.add(hoursWorkedLabel, location);
+        location.gridx = 1;
+        location.gridy = 1;
+        employeeInfoPanel.add(hoursWorkedField, location);
+        location.gridx = 0;
+        location.gridy = 2;
+        employeeInfoPanel.add(hourlyRateLabel, location);
+        location.gridx = 1;
+        location.gridy = 2;
+        employeeInfoPanel.add(hourlyRateField, location);
+        add(employeeInfoPanel);
+
+        // Calculate Information Panel
+        calculatedInfoPanel = new JPanel();
+        Dimension panelThreeSize = new Dimension(frameWidth, 175);
+        calculatedInfoPanel.setBackground(new Color(219, 212, 211));
+        calculatedInfoPanel.setPreferredSize(panelThreeSize);
+        calculatedInfoPanel.setLayout(new GridLayout(4, 2));
+        int tab = 50;
+        Border leftTab = BorderFactory.createEmptyBorder(0, tab, 0, 0);        nameOfEmployeeLabel = new JLabel("<html><u><i>Employee Name: <i><u></html>");
+        Border leftTab2 = BorderFactory.createEmptyBorder(0,20,0,0);
+        Border leftTab3 = BorderFactory.createEmptyBorder(0,55,0,0);
+
+        nameOfEmployeeLabel.setBorder(leftTab);
+        nameOfEmployeeLabel.setFont(font2);
+        employeeNameValue = new JLabel(" ");
+        employeeNameValue.setBorder(leftTab2);
+        employeeNameValue.setFont(font2);
+
+        regularPayLabel = new JLabel("<html><u><i>Regular Pay: <i><u></html>");
+        regularPayLabel.setBorder(leftTab);
+        regularPayLabel.setFont(font2);
+        regularPayValue = new JLabel(" ");
+        regularPayValue.setBorder(leftTab3);
+        regularPayValue.setFont(font2);
+
+        overtimePayLabel = new JLabel("<html><u><i>Overtime Pay (0.5x): <i><u></html>");
+        overtimePayLabel.setBorder(leftTab);
+        overtimePayLabel.setFont(font2);
+        overtimePayValue = new JLabel(" ");
+        overtimePayValue.setBorder(leftTab3);
+        overtimePayValue.setFont(font2);
+
+        grossPayLabel = new JLabel("<html><u><i>Gross Pay: <i><u></html>");
+        grossPayLabel.setBorder(leftTab);
+        grossPayLabel.setFont(font2);
+        grossPayValue = new JLabel(" ");
+        grossPayValue.setBorder(leftTab3);
+        grossPayValue.setFont(font2);
+
+        calculatedInfoPanel.add(nameOfEmployeeLabel);
+        calculatedInfoPanel.add(employeeNameValue);
+        calculatedInfoPanel.add(regularPayLabel);
+        calculatedInfoPanel.add(regularPayValue);
+        calculatedInfoPanel.add(overtimePayLabel);
+        calculatedInfoPanel.add(overtimePayValue);
+        calculatedInfoPanel.add(grossPayLabel);
+        calculatedInfoPanel.add(grossPayValue);
+
+        add(calculatedInfoPanel);
+
+        // Buttons panel
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new GridBagLayout());
+        buttonsPanel.setBackground(new Color(0,52,89));
+        Color buttonBackground = new Color(0,52,89);
+        Dimension panelFourSize = new Dimension(frameWidth, 125);
+        buttonsPanel.setPreferredSize(panelFourSize);
+        Dimension buttonSize = new Dimension(100, 35);
+
+        clearButton = new JButton("CLEAR");
+        clearButton.setBorder(BorderFactory.createBevelBorder( 1, Color.gray, Color.white));
+        clearButton.setPreferredSize(buttonSize);
+        clearButton.setBackground(buttonBackground);
+        clearButton.setForeground(Color.white);
+        clearButton.setFont(font2);
+
+        computeButton = new JButton("COMPUTE");
+        computeButton.setBorder(BorderFactory.createBevelBorder( 1, Color.gray, Color.white));
+        computeButton.setPreferredSize(buttonSize);
+        computeButton.setBackground(buttonBackground);
+        computeButton.setForeground(Color.white);
+        computeButton.setFont(font2);
+
+        quitButton = new JButton("QUIT");
+        quitButton.setBorder(BorderFactory.createBevelBorder( 1, Color.gray, Color.white));
+        quitButton.setPreferredSize(buttonSize);
+        quitButton.setBackground(buttonBackground);
+        quitButton.setForeground(Color.white);
+        quitButton.setFont(font2);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        buttonsPanel.add(clearButton, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        buttonsPanel.add(computeButton, gbc);
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        buttonsPanel.add(quitButton, gbc);
+        add(buttonsPanel);
+
+        ButtonHandler myHandler = new ButtonHandler();
+        clearButton.addActionListener(myHandler);
+        computeButton.addActionListener(myHandler);
+        quitButton.addActionListener(myHandler);
+        payrollCalculator = new PayrollCalculations();
+        setLocationRelativeTo(null);
+        closeTimer = new Timer(timeToClose, myHandler);
     }
+    private class ButtonHandler implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            if (event.getSource() == clearButton) {
+                employeeNameField.setText("");
+                hoursWorkedField.setText("");
+                hourlyRateField.setText("");
+                employeeNameValue.setText("");
+                regularPayValue.setText("");
+                overtimePayValue.setText("");
+                grossPayValue.setText("");
+            }
+            else if (event.getSource() == quitButton) {
+                String closing = "........";
+                dollarSigns.setText("<html><i>Closing application....<i></html>");
+                employeeNameField.setText("Goodbye! Have a great day.");
+                hoursWorkedField.setText(closing);
+                hourlyRateField.setText(closing);
 
-    // //Hours Worked Section
-    // hoursWorkedLabel = new JLabel("Hours Worked:");
-    // hoursWorkedLabel.setForeground(Color.CYAN);
-    // add(hoursWorkedLabel);
-    // hoursWorkedField = new JTextField(20);
-    // add(hoursWorkedField);
+                employeeNameValue.setText("");
+                regularPayValue.setText("");
+                overtimePayValue.setText("");
+                grossPayValue.setText("");
 
-    // //Wage Section
-    // wageLabel = new JLabel("Wage:");
-    // add(wageLabel);
-    // wageField = new JTextField(20);
-    // add(wageField);
+                employeeNameField.setEditable(false);
+                hoursWorkedField.setEditable(false);
+                hourlyRateField.setEditable(false);
 
-    // //Regular section
-    // regularPayLabel = new JLabel("Regular Pay: ");
-    // add(regularPayLabel);
-    // regularPayField = new JTextField(20);
-    // add(regularPayField);
+                quitButton.setEnabled(false);
+                clearButton.setEnabled(false);
+                computeButton.setEnabled(false);
+                closeTimer.start();
+            }
+            else if (event.getSource() == closeTimer) {
+                System.exit(0);
+            }
+            else if (event.getSource() == computeButton) {
+                employeeNameValue.setText(employeeNameField.getText());
+                String hourlyPay = hourlyRateField.getText();
+                String hoursWorked = hoursWorkedField.getText();
+                boolean isValid = payrollCalculator.validPay(hourlyPay) && payrollCalculator.validPay(hoursWorked);
+                if (!isValid) {
 
-    // //Overtime section
-    // overtimePayLabel = new JLabel("Overtime Pay: ");
-    // add(overtimePayLabel);
-    // overtimePayField = new JTextField(20);
-    // add(overtimePayField);
+                    dollarSigns.setForeground(new Color(192,192,192));
+                    dollarSigns.setText("<html><i>Please enter numbers in the right fields!<i></html>");
+                    employeeNameValue.setText("");
+                    regularPayValue.setText("");
+                    overtimePayValue.setText("");
+                    grossPayValue.setText("");
+                }
+                else {
+                    dollarSigns.setText("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
+                    DecimalFormat df = new DecimalFormat("#.00");
+                    double parsedHourlyPay = Double.parseDouble(hourlyPay);
+                    double parsedHoursWorked = Double.parseDouble(hoursWorked);
+                    String calculatedRegPay = df.format(payrollCalculator.regularPay(parsedHoursWorked, parsedHourlyPay));
+                    String calculatedOverPay = df.format(payrollCalculator.weeklyOvertimePay(parsedHoursWorked, parsedHourlyPay));
+                    String calculatedGrossPay = df.format(payrollCalculator.grossPay(parsedHoursWorked, parsedHourlyPay));
 
-    // //Gross section
-    // grossPayLabel = new JLabel("Gross Pay: ");
-    // add(grossPayLabel);
-    // grossPayField = new JTextField(20);
-    // add(grossPayField);
-
-    // //Button group
-    // calculatePayButton = new JButton("Calculate Pay");
-    // add(calculatePayButton);
-    // exitButton = new JButton("Exit");
-    // add(exitButton);
-    // JLabel instructions = new JLabel("Only use integer inputs.");
-    // add(instructions);
+                    regularPayValue.setText("$" + calculatedRegPay);
+                    overtimePayValue.setText("$" + calculatedOverPay);
+                    grossPayValue.setText("$" + calculatedGrossPay);
+                }
+            }
+        }
+    }
+  
 
 }
