@@ -1,6 +1,6 @@
 //****************************************************************************************************************************
 //Program name: "Payroll Calculator"". The program's purpose is to allow the user to calculate payroll automatically in a
-// visually appealing user interface.
+// visually appealing user interface. Copyright 2021 Johnson Tong.
 //This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
 //version 3 as published by the Free Software Foundation.                                                                    *
 //This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied         *
@@ -19,7 +19,7 @@
   //Programming language: Java
   //Files: PayrollCalculations.java, PayrollFrame.java, TestPayroll.java, run.sh
   //Date project began: 2021-Jan-21 
-  //Date of last update: 2021-Feb-02 
+  //Date of last update: 2021-Feb-03
   //Status: Finished
   //Distribution: Users are invited to try to crash by the use of invalid inputs.
   //Purpose: Perform Payroll Calculations in a nice and simple UI.
@@ -41,7 +41,7 @@ public class PayrollCalculations
 
     public static double weeklyOvertimePay(double hours, double payRate) {
         if (hours <= 40) return 0;
-        else return (hours-40)*0.5d*payRate;
+        else return (hours-40)*1.5d*payRate;
     }
 
     public static double grossPay(double hours, double payRate) {
@@ -52,7 +52,8 @@ public class PayrollCalculations
         boolean isValid = true;
         for ( int i = 0; i < testString.length(); i++) {
             if (!Character.isDigit(testString.charAt(i)) && 
-                testString.charAt(i) != '.') 
+                testString.charAt(i) != '.' && 
+                testString.charAt(i) != ' ') 
                 { isValid = false; }
         }
         return isValid;
