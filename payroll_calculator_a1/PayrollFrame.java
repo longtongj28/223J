@@ -321,7 +321,7 @@ public class PayrollFrame extends JFrame {
                 DecimalFormat df = new DecimalFormat("##.00");
                
                 if (!isValid || Double.parseDouble(hoursWorked)>=168d ) {
-                    dollarSigns.setText("<html><i>Zero value assumed for invalid fields.<i></html>");
+                    dollarSigns.setText("<html><i>Error: invalid fields.<i></html>");
                     regularPayValue.setText("$0.00");
                     overtimePayValue.setText("$0.00");
                     grossPayValue.setText("$0.00");
