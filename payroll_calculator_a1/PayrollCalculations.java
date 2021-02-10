@@ -1,3 +1,5 @@
+import java.text.NumberFormat;
+
 //****************************************************************************************************************************
 //Program name: "Payroll Calculator"". The program's purpose is to allow the user to calculate payroll automatically in a
 // visually appealing user interface. Copyright 2021 Johnson Tong.
@@ -50,12 +52,17 @@ public class PayrollCalculations
 
     public static boolean validPay(String testString) {
         boolean isValid = true;
-        for ( int i = 0; i < testString.length(); i++) {
-            if (!Character.isDigit(testString.charAt(i)) && 
-                testString.charAt(i) != '.' && 
-                testString.charAt(i) != ' ') 
-                { isValid = false; }
+        try {
+          Double.parseDouble(testString);
+        } 
+        catch(NumberFormatException e) {
+          isValid = false;
+          return isValid;
         }
+        if (testString.charAt(0) == '+' || testString.charAt(0) == '-') {
+          isValid = false;
+        }
+        if (testString.indexOf(".", 0) == -1) isValid = false;
         return isValid;
     }
 }

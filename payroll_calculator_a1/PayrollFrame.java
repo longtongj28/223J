@@ -120,7 +120,7 @@ public class PayrollFrame extends JFrame {
         companyNameLabel2.setFont(font);
         companyNamePanel.add(companyNameLabel2);
 
-        dollarSigns = new JLabel("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
+        dollarSigns = new JLabel("<html><u><i>~~~~~Decimal inputs only~~~~~<i><u></html>");
         dollarSigns.setHorizontalAlignment(JLabel.CENTER);
         dollarSigns.setForeground(new Color(192,192,192));
         dollarSigns.setFont(font);
@@ -183,35 +183,34 @@ public class PayrollFrame extends JFrame {
         calculatedInfoPanel.setPreferredSize(panelThreeSize);
         calculatedInfoPanel.setLayout(new GridLayout(4, 2));
         int tab = 50;
-        Border leftTab = BorderFactory.createEmptyBorder(0, tab, 0, 0);        nameOfEmployeeLabel = new JLabel("<html><u><i>Employee Name: <i><u></html>");
-        Border leftTab2 = BorderFactory.createEmptyBorder(0,20,0,0);
-        Border leftTab3 = BorderFactory.createEmptyBorder(0,55,0,0);
+        Border leftTab = BorderFactory.createEmptyBorder(0, tab, 0, 0);        
+        nameOfEmployeeLabel = new JLabel("<html><u><i>Employee Name: <i><u></html>");
 
         nameOfEmployeeLabel.setBorder(leftTab);
         nameOfEmployeeLabel.setFont(font2);
         employeeNameValue = new JLabel(" ");
-        employeeNameValue.setBorder(leftTab2);
+        employeeNameValue.setHorizontalAlignment(JLabel.CENTER);
         employeeNameValue.setFont(font2);
 
         regularPayLabel = new JLabel("<html><u><i>Regular Pay: <i><u></html>");
         regularPayLabel.setBorder(leftTab);
         regularPayLabel.setFont(font2);
         regularPayValue = new JLabel(" ");
-        regularPayValue.setBorder(leftTab3);
+        regularPayValue.setHorizontalAlignment(JLabel.CENTER);
         regularPayValue.setFont(font2);
 
-        overtimePayLabel = new JLabel("<html><u><i>Overtime Pay (0.5x): <i><u></html>");
+        overtimePayLabel = new JLabel("<html><u><i>Overtime Pay (1.5x): <i><u></html>");
         overtimePayLabel.setBorder(leftTab);
         overtimePayLabel.setFont(font2);
         overtimePayValue = new JLabel(" ");
-        overtimePayValue.setBorder(leftTab3);
+        overtimePayValue.setHorizontalAlignment(JLabel.CENTER);
         overtimePayValue.setFont(font2);
 
         grossPayLabel = new JLabel("<html><u><i>Gross Pay: <i><u></html>");
         grossPayLabel.setBorder(leftTab);
         grossPayLabel.setFont(font2);
         grossPayValue = new JLabel(" ");
-        grossPayValue.setBorder(leftTab3);
+        grossPayValue.setHorizontalAlignment(JLabel.CENTER);
         grossPayValue.setFont(font2);
 
         calculatedInfoPanel.add(nameOfEmployeeLabel);
@@ -317,23 +316,26 @@ public class PayrollFrame extends JFrame {
                 String hourlyPay = hourlyRateField.getText().replaceAll("\\s", "");
                 String hoursWorked = hoursWorkedField.getText().replaceAll("\\s","");
                 boolean isValid = payrollCalculator.validPay(hourlyPay) && payrollCalculator.validPay(hoursWorked);
-                if (!isValid) {
 
-                    dollarSigns.setForeground(new Color(192,192,192));
-                    dollarSigns.setText("<html><i>Please enter numbers in the right fields!<i></html>");
-                    employeeNameValue.setText("");
-                    regularPayValue.setText("");
-                    overtimePayValue.setText("");
-                    grossPayValue.setText("");
+                dollarSigns.setText("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
+                DecimalFormat df = new DecimalFormat("##.00");
+               
+                if (!isValid || Double.parseDouble(hoursWorked)>=168d ) {
+                    dollarSigns.setText("<html><i>Zero value assumed for invalid fields.<i></html>");
+                    regularPayValue.setText("$0.00");
+                    overtimePayValue.setText("$0.00");
+                    grossPayValue.setText("$0.00");
                 }
                 else {
-                    dollarSigns.setText("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
-                    DecimalFormat df = new DecimalFormat("#.00");
                     double parsedHourlyPay = Double.parseDouble(hourlyPay);
                     double parsedHoursWorked = Double.parseDouble(hoursWorked);
                     String calculatedRegPay = df.format(payrollCalculator.regularPay(parsedHoursWorked, parsedHourlyPay));
                     String calculatedOverPay = df.format(payrollCalculator.weeklyOvertimePay(parsedHoursWorked, parsedHourlyPay));
                     String calculatedGrossPay = df.format(payrollCalculator.grossPay(parsedHoursWorked, parsedHourlyPay));
+
+                    if (calculatedRegPay.equals(".00")) calculatedRegPay = "0.00";
+                    if (calculatedOverPay.equals(".00")) calculatedOverPay = "0.00";
+                    if (calculatedGrossPay.equals(".00")) calculatedGrossPay = "0.00";
 
                     regularPayValue.setText("$" + calculatedRegPay);
                     overtimePayValue.setText("$" + calculatedOverPay);
