@@ -277,8 +277,9 @@ public class PayrollFrame extends JFrame {
     }
     private class ButtonHandler implements ActionListener {
         public void actionPerformed(ActionEvent event) {
+            String defaultHeader = "<html><u>~~~~~~=*$.$.$.$.$*=~~~~~~<u></html>";
             if (event.getSource() == clearButton) {
-                dollarSigns.setText("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
+                dollarSigns.setText(defaultHeader);
                 employeeNameField.setText("");
                 hoursWorkedField.setText("");
                 hourlyRateField.setText("");
@@ -317,7 +318,7 @@ public class PayrollFrame extends JFrame {
                 String hoursWorked = hoursWorkedField.getText().replaceAll("\\s","");
                 boolean isValid = payrollCalculator.validPay(hourlyPay) && payrollCalculator.validPay(hoursWorked);
 
-                dollarSigns.setText("<html><u>~~~~~~=*$.$.$.$.$*=~~~~~~<u></html>");
+                dollarSigns.setText(defaultHeader);
                 DecimalFormat df = new DecimalFormat("##.00");
                
                 if (!isValid || Double.parseDouble(hoursWorked)>=168d ) {
