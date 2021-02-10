@@ -317,7 +317,7 @@ public class PayrollFrame extends JFrame {
                 String hoursWorked = hoursWorkedField.getText().replaceAll("\\s","");
                 boolean isValid = payrollCalculator.validPay(hourlyPay) && payrollCalculator.validPay(hoursWorked);
 
-                dollarSigns.setText("<html><u>~~~~~~~~~~=*$.$.$.$.$*=~~~~~~~~~~<u></html>");
+                dollarSigns.setText("<html><u>~~~~~~=*$.$.$.$.$*=~~~~~~<u></html>");
                 DecimalFormat df = new DecimalFormat("##.00");
                
                 if (!isValid || Double.parseDouble(hoursWorked)>=168d ) {
