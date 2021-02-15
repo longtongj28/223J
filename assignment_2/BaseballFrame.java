@@ -38,38 +38,153 @@ import java.text.DecimalFormat;
 import java.awt.event.ActionEvent;
 
 public class BaseballFrame extends JFrame {
+    // three panels that will be used
     private JPanel programNamePanel;
     private JPanel diamondPanel;
     private JPanel buttonsPanel;
 
+    //Frame formatting information
     private FlowLayout flowLayout;
     private int frameHeight = 650;
     private int frameWidth = 600;
-    //program name panel elements
-    private JLabel programeNameLabel;
-    //program diamond panel elements
-    //program buttons panel elements
 
+
+    // program name panel elements
+    private JLabel programeNameLabel;
+    private JLabel instructions;
+    private JLabel goodBye;
+
+    // program diamond panel elements
+
+    // program buttons panel elements
+    private JButton startButton;
+    private JPanel speedSection;
+    private JLabel speedLabel;
+    private JTextField speedField;
+    private JButton quitButton;
+    private Timer closeTimer;
+    private int timeToClose = 3000;
 
     public BaseballFrame() {
         super("Baseball Frame");
         flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 0);
         setTitle("Diamond Animation");
         setSize(frameWidth, frameHeight);
+        getRootPane().setBorder(BorderFactory.createEmptyBorder());
         setResizable(false);
         setLayout(flowLayout);
         setLocationRelativeTo(null);
-        //some fonts
+        // some fonts
         Font font1 = new Font("Liberation Sans", Font.BOLD, 25);
-        //program name panel
+        Font font2 = new Font("Liberation Sans", Font.BOLD, 15);
+        // program name panel
         programNamePanel = new JPanel();
+        programNamePanel.setLayout(new GridLayout(3,1));
         programNamePanel.setPreferredSize(new Dimension(frameWidth, 75));
         programNamePanel.setBackground(new Color(251, 255, 241));
 
         programeNameLabel = new JLabel("Johnson's Diamond Animation");
-        programNamePanel.setFont(font1);
+        programeNameLabel.setHorizontalAlignment(JLabel.CENTER);
+        programeNameLabel.setFont(font1);
         programNamePanel.add(programeNameLabel);
 
+        instructions = new JLabel("Only use number inputs for the speed.");
+        instructions.setHorizontalAlignment(JLabel.CENTER);
+        programNamePanel.add(instructions);
+
+        goodBye = new JLabel("");
+        goodBye.setHorizontalAlignment(JLabel.CENTER);
+        programNamePanel.add(goodBye);
         add(programNamePanel);
+
+        // diamond animation panel
+        diamondPanel = new DiamondPanel();
+        diamondPanel.setPreferredSize(new Dimension(frameWidth, 425));
+        diamondPanel.setBackground(new Color(197, 216, 109));
+        add(diamondPanel);
+
+        // buttons panel
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new GridBagLayout());
+        buttonsPanel.setPreferredSize(new Dimension(frameWidth, 125));
+        buttonsPanel.setBackground(new Color(249, 245, 227));
+
+        Dimension sizeOfButton = new Dimension(85, 30);
+        startButton = new JButton("Start");
+        startButton.setFont(font2);
+        startButton.setPreferredSize(sizeOfButton);
+
+        speedSection = new JPanel();
+        speedSection.setOpaque(true);
+        speedSection.setBackground(new Color(0, 0, 0, 0));
+        speedLabel = new JLabel("Speed: ");
+        speedField = new JTextField(10);
+        speedSection.add(speedLabel);
+        speedSection.add(speedField);
+
+        quitButton = new JButton("Quit");
+        quitButton.setFont(font2);
+        quitButton.setPreferredSize(sizeOfButton);
+        buttonsPanel.add(quitButton);
+
+        //managing the location of the buttons
+        //first part at (0,1) coordinates.
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 30, 15, 30);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        buttonsPanel.add(startButton, gbc);
+        gbc.gridx++;
+        buttonsPanel.add(speedSection, gbc);
+        gbc.gridx++;
+        buttonsPanel.add(quitButton, gbc);
+        
+        add(buttonsPanel);
+
+        ButtonHandler myHandler = new ButtonHandler();
+        quitButton.addActionListener(myHandler);
+        startButton.addActionListener(myHandler);
+        closeTimer = new Timer(timeToClose, myHandler);
+    }
+    private class ButtonHandler implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            if(event.getSource() == quitButton) {
+                startButton.setEnabled(false);
+                quitButton.setEnabled(false);
+                speedField.setEditable(false);
+                goodBye.setText("Thanks for using!");
+                closeTimer.start();
+            }
+            else if (event.getSource() == closeTimer) {
+                System.exit(0);
+            }
+            if (event.getSource() == startButton) {
+                if (!checkNum(speedField.getText())) {
+                    instructions.setForeground(Color.RED);
+                }
+                else if (startButton.getText().equals("Pause")) {
+                    startButton.setText("Start");
+                }
+                else {
+                    startButton.setText("Pause");
+                    speedField.setEditable(false);
+                    instructions.setForeground(Color.BLACK);
+                }
+            }
+        }
+    }
+    private static boolean checkNum(String testString) {
+        boolean isValid = true;
+        try {
+          Double.parseDouble(testString);
+        } 
+        catch(NumberFormatException e) {
+          isValid = false;
+          return isValid;
+        }
+        if (testString.charAt(0) == '+' || testString.charAt(0) == '-') {
+          isValid = false;
+        }
+        return isValid;
     }
 }
