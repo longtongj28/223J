@@ -40,14 +40,13 @@ import java.awt.event.ActionEvent;
 public class BaseballFrame extends JFrame {
     // three panels that will be used
     private JPanel programNamePanel;
-    private JPanel diamondPanel;
+    private DiamondPanel diamondPanel;
     private JPanel buttonsPanel;
 
-    //Frame formatting information
+    // Frame formatting information
     private FlowLayout flowLayout;
     private int frameHeight = 650;
     private int frameWidth = 600;
-
 
     // program name panel elements
     private JLabel programeNameLabel;
@@ -65,6 +64,40 @@ public class BaseballFrame extends JFrame {
     private Timer closeTimer;
     private int timeToClose = 3000;
 
+    // speed of player, animations
+    private double ball_speed_pix_per_second = 100;
+    private double ball_speed_pix_per_tic;
+
+    private Timer refreshClock;
+    private Timer motionClock;
+    private ButtonHandler myButtonHandler;
+    private ClockHandlerClass clockHandler;
+    private final double refresh_clock_rate = 120; // Hz. This is often called frames per second.
+    private int refresh_clock_delay_interval; // This value will be computed
+    private final double motion_clock_rate = 99.873; // Hz. How many times the moving object will update its position in
+                                                     // each second.
+    private int motion_clock_delay_interval; // This number will be computed by the constructor
+    private final double millisecondpersecond = 1000.0;
+    private double dx; // Unit of incremental change in coordinates.
+    private double dy; // Unit of incremental change in coordinates.
+    private double u, v; // Two temporary variables for holding xy coordinates.
+
+    private double length_line_segment;
+
+    //location of the four points
+    private double p1x = 300;
+    private double p1y = 375;
+
+    private double p2x = 525;
+    private double p2y = 175;
+    
+    private double p3x = 275;
+    private double p3y = 50;
+    
+    private double p4x = 75;
+    private double p4y = 200;
+
+    private int whatpoint = 0;
     public BaseballFrame() {
         super("Baseball Frame");
         flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 0);
@@ -79,56 +112,58 @@ public class BaseballFrame extends JFrame {
         Font font2 = new Font("Liberation Sans", Font.BOLD, 15);
         // program name panel
         programNamePanel = new JPanel();
-        programNamePanel.setLayout(new GridLayout(3,1));
+        programNamePanel.setLayout(new GridLayout(3, 1));
         programNamePanel.setPreferredSize(new Dimension(frameWidth, 75));
         programNamePanel.setBackground(new Color(251, 255, 241));
-
+        
         programeNameLabel = new JLabel("Johnson's Diamond Animation");
         programeNameLabel.setHorizontalAlignment(JLabel.CENTER);
         programeNameLabel.setFont(font1);
         programNamePanel.add(programeNameLabel);
-
+        
         instructions = new JLabel("Only use number inputs for the speed.");
         instructions.setHorizontalAlignment(JLabel.CENTER);
         programNamePanel.add(instructions);
-
+        
         goodBye = new JLabel("");
         goodBye.setHorizontalAlignment(JLabel.CENTER);
         programNamePanel.add(goodBye);
         add(programNamePanel);
-
+        
         // diamond animation panel
         diamondPanel = new DiamondPanel();
         diamondPanel.setPreferredSize(new Dimension(frameWidth, 425));
         diamondPanel.setBackground(new Color(197, 216, 109));
         add(diamondPanel);
-
+        
         // buttons panel
         buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridBagLayout());
         buttonsPanel.setPreferredSize(new Dimension(frameWidth, 125));
         buttonsPanel.setBackground(new Color(249, 245, 227));
-
-        Dimension sizeOfButton = new Dimension(85, 30);
+        
+        
+        Dimension sizeOfButton = new Dimension(115, 30);
         startButton = new JButton("Start");
         startButton.setFont(font2);
         startButton.setPreferredSize(sizeOfButton);
-
+        
         speedSection = new JPanel();
         speedSection.setOpaque(true);
         speedSection.setBackground(new Color(0, 0, 0, 0));
         speedLabel = new JLabel("Speed: ");
         speedField = new JTextField(10);
+        speedField.setText("100");
         speedSection.add(speedLabel);
         speedSection.add(speedField);
-
+        
         quitButton = new JButton("Quit");
         quitButton.setFont(font2);
         quitButton.setPreferredSize(sizeOfButton);
         buttonsPanel.add(quitButton);
-
-        //managing the location of the buttons
-        //first part at (0,1) coordinates.
+        
+        // managing the location of the buttons
+        // first part at (0,1) coordinates.
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 30, 15, 30);
         gbc.gridx = 0;
@@ -140,51 +175,122 @@ public class BaseballFrame extends JFrame {
         buttonsPanel.add(quitButton, gbc);
         
         add(buttonsPanel);
-
-        ButtonHandler myHandler = new ButtonHandler();
-        quitButton.addActionListener(myHandler);
-        startButton.addActionListener(myHandler);
-        closeTimer = new Timer(timeToClose, myHandler);
+        
+        myButtonHandler = new ButtonHandler();
+        quitButton.addActionListener(myButtonHandler);
+        startButton.addActionListener(myButtonHandler);
+        closeTimer = new Timer(timeToClose, myButtonHandler);
+        
+        // create handler for all clocks
+        clockHandler = new ClockHandlerClass();
+        
+        //Create a refresh clock
+        refresh_clock_delay_interval = (int)Math.round(millisecondpersecond/refresh_clock_rate);
+        refreshClock = new Timer(refresh_clock_delay_interval,clockHandler);
+        
+        //Create a motion clock
+        motion_clock_delay_interval = (int)Math.round(millisecondpersecond/motion_clock_rate); 
+        motionClock = new Timer(motion_clock_delay_interval,clockHandler);
     }
+    
     private class ButtonHandler implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if(event.getSource() == quitButton) {
+            if (event.getSource() == quitButton) {
                 startButton.setEnabled(false);
                 quitButton.setEnabled(false);
                 speedField.setEditable(false);
                 goodBye.setText("Thanks for using!");
                 closeTimer.start();
-            }
-            else if (event.getSource() == closeTimer) {
+            } else if (event.getSource() == closeTimer) {
                 System.exit(0);
-            }
-            if (event.getSource() == startButton) {
+            } else if (event.getSource() == startButton) {
                 if (!checkNum(speedField.getText())) {
                     instructions.setForeground(Color.RED);
-                }
-                else if (startButton.getText().equals("Pause")) {
-                    startButton.setText("Start");
-                }
-                else {
+                } else if (startButton.getText().equals("Pause")) {
+                    startButton.setText("Resume");
+                    refreshClock.stop();
+                    motionClock.stop();
+                } else if (startButton.getText().equals("Start")) {
+                    // converting speed of player from px/s to px/tic
+                    ball_speed_pix_per_second = Double.parseDouble(speedField.getText());
+                    ball_speed_pix_per_tic = ball_speed_pix_per_second/motion_clock_rate;
                     startButton.setText("Pause");
                     speedField.setEditable(false);
                     instructions.setForeground(Color.BLACK);
+                    refreshClock.start();
+                    motionClock.start();
+                    calculateDifferentials(p1x, p1y, p2x, p2y);
+                    diamondPanel.initialize(p1x, p1y, p2x, p2y, dx, dy);
+                }
+                else if (startButton.getText().equals("Resume")) {
+                    refreshClock.start();
+                    motionClock.start();
+                    startButton.setText("Pause");
+                }
+                else {
+                    // pass
                 }
             }
         }
     }
+    
+    private class ClockHandlerClass implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            boolean contAnimation = false;
+            if (event.getSource() == refreshClock) {
+                diamondPanel.repaint();
+            } else if (event.getSource() == motionClock) {
+                contAnimation = diamondPanel.movePlayer();
+                if (!contAnimation) {
+                    if (whatpoint == 0) {
+                        whatpoint++;
+                    }
+                    else if (whatpoint == 1) {
+                        calculateDifferentials(p2x, p2y, p3x, p3y);
+                        diamondPanel.initialize(p2x, p2y, p3x, p3y, dx, dy);
+                        whatpoint++;
+                    }
+                    else if (whatpoint == 2) {
+                        calculateDifferentials(p3x, p3y, p4x, p4y);
+                        diamondPanel.initialize(p3x, p3y, p4x, p4y, dx, dy);
+                        whatpoint++;
+                    }
+                    else if (whatpoint == 3) {
+                        calculateDifferentials(p4x, p4y, p1x, p1y);
+                        diamondPanel.initialize(p4x, p4y, p1x, p1y, dx, dy);
+                        whatpoint++;
+                    }
+                    else if (whatpoint == 4)
+                    {
+                        motionClock.stop();
+                        refreshClock.stop();
+                        speedField.setEditable(true);
+                        startButton.setText("Start");
+                        whatpoint = 0;
+                    }
+                }
+               
+            }
+        }
+    }
+
+    // function to make sure that input to speed text field is valid
     private static boolean checkNum(String testString) {
         boolean isValid = true;
         try {
-          Double.parseDouble(testString);
-        } 
-        catch(NumberFormatException e) {
-          isValid = false;
-          return isValid;
+            Double.parseDouble(testString);
+        } catch (NumberFormatException e) {
+            isValid = false;
+            return isValid;
         }
         if (testString.charAt(0) == '+' || testString.charAt(0) == '-') {
-          isValid = false;
+            isValid = false;
         }
         return isValid;
+    }
+    private void calculateDifferentials(double xStart, double yStart, double xEnd, double yEnd) {
+        length_line_segment = Math.sqrt(Math.pow((xEnd-xStart),2) + Math.pow((yEnd-yStart),2));
+        dx = ball_speed_pix_per_tic*(xEnd - xStart)/length_line_segment;
+        dy = ball_speed_pix_per_tic*(yEnd - yStart)/length_line_segment;
     }
 }
