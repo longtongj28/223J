@@ -16,8 +16,8 @@
 //Program name: Payroll Calculator
 //Programming language: Java
 //Files: PayrollCalculations.java, PayrollFrame.java, TestPayroll.java, run.sh
-//Date project began: 2021-Jan-21 
-//Date of last update: 2021-Feb-03 
+//Date project began: 2021-Jan-21
+//Date of last update: 2021-Feb-03
 //Status: Finished
 //Distribution: Users are invited to try to crash by the use of invalid inputs.
 //Purpose: Perform Payroll Calculations in a nice and simple UI.
@@ -45,8 +45,8 @@ public class BaseballFrame extends JFrame {
 
     // Frame formatting information
     private FlowLayout flowLayout;
-    private int frameHeight = 650;
-    private int frameWidth = 600;
+    private int frameHeight = 900;
+    private int frameWidth = 1000;
 
     // program name panel elements
     private JLabel programeNameLabel;
@@ -85,17 +85,17 @@ public class BaseballFrame extends JFrame {
     private double length_line_segment;
 
     //location of the four points
-    private double p1x = 300;
-    private double p1y = 375;
+    private double p1x = 500;
+    private double p1y = 500;
 
-    private double p2x = 525;
-    private double p2y = 175;
-    
-    private double p3x = 275;
-    private double p3y = 50;
-    
-    private double p4x = 75;
-    private double p4y = 200;
+    private double p2x = 875;
+    private double p2y = 270;
+
+    private double p3x = 450;
+    private double p3y = 40;
+
+    private double p4x = 80;
+    private double p4y = 250;
 
     private int whatpoint = 0;
     public BaseballFrame() {
@@ -108,60 +108,66 @@ public class BaseballFrame extends JFrame {
         setLayout(flowLayout);
         setLocationRelativeTo(null);
         // some fonts
-        Font font1 = new Font("Liberation Sans", Font.BOLD, 25);
-        Font font2 = new Font("Liberation Sans", Font.BOLD, 15);
+        Font font1 = new Font("Liberation Sans", Font.BOLD, 35);
+        Font font2 = new Font("Liberation Sans", Font.BOLD, 25);
         // program name panel
         programNamePanel = new JPanel();
         programNamePanel.setLayout(new GridLayout(3, 1));
-        programNamePanel.setPreferredSize(new Dimension(frameWidth, 75));
+        programNamePanel.setPreferredSize(new Dimension(frameWidth, 150));
         programNamePanel.setBackground(new Color(251, 255, 241));
-        
+
         programeNameLabel = new JLabel("Johnson's Diamond Animation");
         programeNameLabel.setHorizontalAlignment(JLabel.CENTER);
         programeNameLabel.setFont(font1);
         programNamePanel.add(programeNameLabel);
-        
+
         instructions = new JLabel("Only use number inputs for the speed.");
+        instructions.setFont(font2);
         instructions.setHorizontalAlignment(JLabel.CENTER);
         programNamePanel.add(instructions);
-        
+
         goodBye = new JLabel("");
+        goodBye.setFont(font2);
         goodBye.setHorizontalAlignment(JLabel.CENTER);
         programNamePanel.add(goodBye);
         add(programNamePanel);
-        
+
         // diamond animation panel
         diamondPanel = new DiamondPanel();
-        diamondPanel.setPreferredSize(new Dimension(frameWidth, 425));
+        diamondPanel.setPreferredSize(new Dimension(frameWidth, 550));
         diamondPanel.setBackground(new Color(197, 216, 109));
+        diamondPanel.setInitialCoord(p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y);
+        diamondPanel.repaint();
         add(diamondPanel);
-        
+
         // buttons panel
         buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridBagLayout());
-        buttonsPanel.setPreferredSize(new Dimension(frameWidth, 125));
+        buttonsPanel.setPreferredSize(new Dimension(frameWidth, 150));
         buttonsPanel.setBackground(new Color(249, 245, 227));
-        
-        
-        Dimension sizeOfButton = new Dimension(115, 30);
+
+
+        Dimension sizeOfButton = new Dimension(150, 50);
         startButton = new JButton("Start");
         startButton.setFont(font2);
         startButton.setPreferredSize(sizeOfButton);
-        
+
         speedSection = new JPanel();
         speedSection.setOpaque(true);
         speedSection.setBackground(new Color(0, 0, 0, 0));
         speedLabel = new JLabel("Speed: ");
+        speedLabel.setFont(font2);
         speedField = new JTextField(10);
+        speedField.setFont(font2);
         speedField.setText("100");
         speedSection.add(speedLabel);
         speedSection.add(speedField);
-        
+
         quitButton = new JButton("Quit");
         quitButton.setFont(font2);
         quitButton.setPreferredSize(sizeOfButton);
         buttonsPanel.add(quitButton);
-        
+
         // managing the location of the buttons
         // first part at (0,1) coordinates.
         GridBagConstraints gbc = new GridBagConstraints();
@@ -173,26 +179,26 @@ public class BaseballFrame extends JFrame {
         buttonsPanel.add(speedSection, gbc);
         gbc.gridx++;
         buttonsPanel.add(quitButton, gbc);
-        
+
         add(buttonsPanel);
-        
+
         myButtonHandler = new ButtonHandler();
         quitButton.addActionListener(myButtonHandler);
         startButton.addActionListener(myButtonHandler);
         closeTimer = new Timer(timeToClose, myButtonHandler);
-        
+
         // create handler for all clocks
         clockHandler = new ClockHandlerClass();
-        
+
         //Create a refresh clock
         refresh_clock_delay_interval = (int)Math.round(millisecondpersecond/refresh_clock_rate);
         refreshClock = new Timer(refresh_clock_delay_interval,clockHandler);
-        
+
         //Create a motion clock
-        motion_clock_delay_interval = (int)Math.round(millisecondpersecond/motion_clock_rate); 
+        motion_clock_delay_interval = (int)Math.round(millisecondpersecond/motion_clock_rate);
         motionClock = new Timer(motion_clock_delay_interval,clockHandler);
     }
-    
+
     private class ButtonHandler implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             if (event.getSource() == quitButton) {
@@ -200,6 +206,9 @@ public class BaseballFrame extends JFrame {
                 quitButton.setEnabled(false);
                 speedField.setEditable(false);
                 goodBye.setText("Thanks for using!");
+                speedField.setText("Goodbye!");
+                motionClock.stop();
+                refreshClock.stop();
                 closeTimer.start();
             } else if (event.getSource() == closeTimer) {
                 System.exit(0);
@@ -233,7 +242,7 @@ public class BaseballFrame extends JFrame {
             }
         }
     }
-    
+
     private class ClockHandlerClass implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             boolean contAnimation = false;
@@ -267,9 +276,10 @@ public class BaseballFrame extends JFrame {
                         speedField.setEditable(true);
                         startButton.setText("Start");
                         whatpoint = 0;
+                        diamondPanel.repaint();
                     }
                 }
-               
+
             }
         }
     }

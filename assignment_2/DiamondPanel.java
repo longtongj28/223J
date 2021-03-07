@@ -23,7 +23,7 @@ public class DiamondPanel extends JPanel {
     private int point4y = 175;
 
     // size of bases
-    private int baseSide = 24;
+    private int baseSide = 32;
     private int adjust = baseSide / 2;
 
     // player characteristics
@@ -67,6 +67,7 @@ public class DiamondPanel extends JPanel {
         g2.fill3DRect(point4x - adjust, point4y - adjust, baseSide, baseSide, true);
 
         // draw the player (starts at point 1)
+
         g2.setColor(new Color(218, 65, 103));
         g2.fillOval(ball_upper_corner_integer_x,ball_upper_corner_integer_y,
                                    (int)Math.round(balldiameter),(int)Math.round(balldiameter));
@@ -89,8 +90,29 @@ public class DiamondPanel extends JPanel {
         ball_upper_corner_y = ball_center_y - ballradius;   //Ditto
         ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);  //Round to nearest int
         ball_upper_corner_integer_y = (int)Math.round(ball_upper_corner_y);  //Ditto
-        distance_center_of_ball_2_end_of_line_segment 
+        distance_center_of_ball_2_end_of_line_segment
                       = Math.sqrt(Math.pow(ball_center_x - a2,2) + Math.pow(ball_center_y - b2,2));
+    }
+
+    public void setInitialCoord(double p1x, double p1y,
+                                double p2x, double p2y,
+                                double p3x, double p3y,
+                                double p4x, double p4y
+                                )
+    {
+      point1x = (int) p1x;
+      point1y = (int) p1y;
+
+      point2x = (int) p2x;
+      point2y = (int) p2y;
+
+      point3x = (int) p3x;
+      point3y = (int) p3y;
+
+      point4x = (int) p4x;
+      point4y = (int) p4y;
+      ball_upper_corner_integer_x = point1x - (int) ballradius;
+      ball_upper_corner_integer_y = point1y - (int) ballradius;
     }
     public boolean movePlayer() {
         successfulmove = true;
