@@ -1,3 +1,35 @@
+//****************************************************************************************************************************
+//Program name: "Baseball Animation".  This program will display a pause-able animation of a ball moving the four corners of a quadrilateral.
+//  Copyright (C) 2021 Johnson Tong                                                                         *
+//This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
+//version 3 as published by the Free Software Foundation.                                                                    *
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied         *
+//warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
+//A copy of the GNU General Public License v3 is available here:  <https://www.gnu.org/licenses/>.                           *
+//****************************************************************************************************************************
+
+//Ruler:=1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+
+//Author information:
+//Author: Johnson Tong
+//Mail: jt28@csu.fullerton.edu
+
+//Program information:
+//Program name: Baseball Animation
+//Programming language: Java
+//Files: TestBaseball.java, BaseballFrame.java, DiamondPanel.java, run.sh
+//Date project began: 2021 Feb 25
+//Date of last update: 2021 Mar 07
+//Status: Finished; testing completed.
+//Purpose: This program displays the animation of a ball moving from the four corners of a quadrilateral and
+//         demonstrates the mathematical calculation of animation.
+//Base test system: Linux (Tuffix) system with Bash shell and openjdk-14-jdk
+
+//This module
+//File name: DiamondPanel.java
+//Compile : javac DiamondPanel.java
+//Purpose: This class defines class DiamondPanel, which inherits from JPanel to draw the graphics of the animation.
+//This module (class) is called from the BaseballFrame class.
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.awt.Color;

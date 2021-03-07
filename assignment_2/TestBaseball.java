@@ -1,6 +1,6 @@
 //****************************************************************************************************************************
-//Program name: "Payroll Calculator"". The program's purpose is to allow the user to calculate payroll automatically in a
-// visually appealing user interface. Copyright 2021 Johnson Tong.
+//Program name: "Baseball Animation".  This program will display a pause-able animation of a ball moving the four corners of a quadrilateral.
+//  Copyright (C) 2021 Johnson Tong                                                                         *
 //This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
 //version 3 as published by the Free Software Foundation.                                                                    *
 //This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied         *
@@ -8,28 +8,27 @@
 //A copy of the GNU General Public License v3 is available here:  <https://www.gnu.org/licenses/>.                           *
 //****************************************************************************************************************************
 
-
+//Ruler:=1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
 
 //Author information:
-  //Author: Johnson Tong
-  //Mail: jt28@csu.fullerton.edu
+//Author: Johnson Tong
+//Mail: jt28@csu.fullerton.edu
 
 //Program information:
-  //Program name: Payroll Calculator
-  //Programming language: Java
-  //Files: PayrollCalculations.java, PayrollFrame.java, TestPayroll.java, run.sh
-  //Date project began: 2021-Jan-21 
-  //Date of last update: 2021-Feb-03 
-  //Status: Finished
-  //Distribution: Users are invited to try to crash by the use of invalid inputs.
-  //Purpose: Perform Payroll Calculations in a nice and simple UI.
+//Program name: Baseball Animation
+//Programming language: Java
+//Files: TestBaseball.java, BaseballFrame.java, DiamondPanel.java, run.sh
+//Date project began: 2021 Feb 25
+//Date of last update: 2021 Mar 07
+//Status: Finished; testing completed.
+//Purpose: This program displays the animation of a ball moving from the four corners of a quadrilateral and
+//         demonstrates the mathematical calculation of animation.
+//Base test system: Linux (Tuffix) system with Bash shell and openjdk-14-jdk
 
 //This module
-  //File name: TestPayroll.java
-  //Compile: TestPayroll.java
-  //Purpose: Driver file for the program, activates the user interface.
-
-//Ruler:=1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+//File name: BaseballFrame.java
+//Compile : javac BaseballFrame.java
+//Purpose: This is the driver file that will be used to run the entire program.
 import javax.swing.JFrame;
 
 public class TestBaseball {
