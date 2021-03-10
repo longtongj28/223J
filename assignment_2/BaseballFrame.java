@@ -275,10 +275,10 @@ public class BaseballFrame extends JFrame {
                     {
                         motionClock.stop();
                         refreshClock.stop();
+                        diamondPanel.repaint();
                         speedField.setEditable(true);
                         startButton.setText("Start");
                         whatpoint = 0;
-                        diamondPanel.repaint();
                     }
                 }
 
