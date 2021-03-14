@@ -1,9 +1,11 @@
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
+import java.awt.Color;
 
 import javax.swing.Timer;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
@@ -44,6 +46,13 @@ public class BouncingFrame extends JFrame {
     private JLabel directionLabel;
     private JTextField directionField;
 
+    private String[] colorStrings = {"yellow", "blue", "cyan", "gray", "green",
+                                     "magenta", "pink", "red", "white", "orange"};
+    private JPanel colorPanel;
+    private JLabel colorLabel;
+    private JComboBox colorChoiceOne;
+    private JComboBox colorChoiceTwo;
+
     private JPanel buttonRowPanel;
     private Dimension buttonDimensions = new Dimension(165, 50);
     private JButton clearButton;
@@ -63,6 +72,11 @@ public class BouncingFrame extends JFrame {
     private JPanel ballYPanel;
     private JLabel ballYLabel;
     private JTextField ballYField;
+
+    private JPanel ballSizePanel;
+    private JLabel ballSizeLabel;
+    private JButton increaseButton;
+    private JButton decreaseButton;
     // end button panel
 
     // Borders
@@ -138,7 +152,7 @@ public class BouncingFrame extends JFrame {
         instructions1 = new JLabel("~Enter your own refresh rate(Hz), speed(px/s), and direction(deg)~");
         instructions1.setFont(instructionFont);
         instructions1.setHorizontalAlignment(JLabel.CENTER);
-        instructions2 = new JLabel("Use number inputs only, and click \"clear\" to initialize!");
+        instructions2 = new JLabel("First click \"clear\" to initialize, then input using numbers only!");
         instructions2.setHorizontalAlignment(JLabel.CENTER);
         instructions2.setFont(instructionFont);
 
@@ -174,7 +188,7 @@ public class BouncingFrame extends JFrame {
         ballLocPanel.setBorder(ballLocBorder);
 
         ballLocationBoxFont = new Font("Liberation Sans", Font.BOLD, 18);
-        ballLocLabel = new JLabel("Ball Location");
+        ballLocLabel = new JLabel("Ball Information");
         ballLocLabel.setFont(ballLocationBoxFont);
 
         ballXPanel = new JPanel();
@@ -197,8 +211,23 @@ public class BouncingFrame extends JFrame {
         ballYPanel.add(ballYLabel);
         ballYPanel.add(ballYField);
 
+        ballSizePanel = new JPanel();
+        ballSizeLabel = new JLabel("Size: ");
+        increaseButton = new JButton("+");
+        decreaseButton = new JButton("-");
+        increaseButton.setEnabled(false);
+        decreaseButton.setEnabled(false);
+        ballSizeLabel.setFont(ballLocationBoxFont);
+        increaseButton.setFont(ballLocationBoxFont);
+        decreaseButton.setFont(ballLocationBoxFont);
+        ballSizePanel.add(ballSizeLabel);
+        ballSizePanel.add(increaseButton);
+        ballSizePanel.add(decreaseButton);
+
         ballLocPanel.setLayout(new GridBagLayout());
         GridBagConstraints ballPanelGBC = new GridBagConstraints();
+        ballPanelGBC.weightx = 1;
+        ballPanelGBC.weighty = 1;
         ballPanelGBC.gridx = 0;
         ballPanelGBC.gridy = 0;
         ballLocPanel.add(ballLocLabel, ballPanelGBC);
@@ -206,6 +235,8 @@ public class BouncingFrame extends JFrame {
         ballLocPanel.add(ballXPanel, ballPanelGBC);
         ballPanelGBC.gridy++;
         ballLocPanel.add(ballYPanel, ballPanelGBC);
+        ballPanelGBC.gridy++;
+        ballLocPanel.add(ballSizePanel, ballPanelGBC);
         // end ball location panel info( in the lower third panel)
 
         // panel to house the input row and the button row
@@ -235,6 +266,23 @@ public class BouncingFrame extends JFrame {
         directionField.setText("45.0");
         directionField.setHorizontalAlignment(JTextField.CENTER);
         directionField.setFont(ballLocationBoxFont);
+
+        colorPanel = new JPanel();
+        colorPanel.setOpaque(false);
+        colorPanel.setLayout(new BorderLayout());
+        colorLabel = new JLabel("Color Choices: ");
+        colorChoiceOne = new JComboBox<>(colorStrings);
+        colorChoiceOne.setSelectedIndex(0);
+        colorChoiceTwo = new JComboBox<>(colorStrings);
+        colorChoiceTwo.setSelectedIndex(1);
+        
+        colorLabel.setFont(ballLocationBoxFont);
+        colorChoiceOne.setFont(ballLocationBoxFont);
+        colorChoiceTwo.setFont(ballLocationBoxFont);
+        colorPanel.add(colorLabel, BorderLayout.NORTH);
+        colorPanel.add(colorChoiceTwo, BorderLayout.SOUTH);
+        colorPanel.add(colorChoiceOne);
+
 
         inputRowPanel.setLayout(new GridBagLayout());
         GridBagConstraints inputRowGBC = new GridBagConstraints();
@@ -285,16 +333,23 @@ public class BouncingFrame extends JFrame {
         leftHalfPanel.setBorder(compound);
         buttonsPanel.add(leftHalfPanel);
         buttonsPanel.add(ballLocPanel);
+        buttonsPanel.add(colorPanel);
 
         mainPanel.add(aboutPanel, BorderLayout.NORTH);
         mainPanel.add(graphicsPanel);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         add(mainPanel);
 
+        //button handling/input handling
         myButtonHandler = new ButtonHandler();
         quitButton.addActionListener(myButtonHandler);
         startButton.addActionListener(myButtonHandler);
         clearButton.addActionListener(myButtonHandler);
+        decreaseButton.addActionListener(myButtonHandler);
+        increaseButton.addActionListener(myButtonHandler);
+        colorChoiceOne.addActionListener(myButtonHandler);
+        colorChoiceTwo.addActionListener(myButtonHandler);
+
         closeTimer = new Timer(timeToClose, myButtonHandler);
 
         // create handler for all clocks
@@ -307,13 +362,19 @@ public class BouncingFrame extends JFrame {
                 startButton.setEnabled(false);
                 quitButton.setEnabled(false);
                 clearButton.setEnabled(false);
+                increaseButton.setEnabled(false);
+                decreaseButton.setEnabled(false);
+                colorChoiceOne.setEnabled(false);
+                colorChoiceTwo.setEnabled(false);
 
                 refreshRateField.setEditable(false);
                 speedField.setEditable(false);
                 directionField.setEditable(false);
-                activateClocks();
-                
+                if (active) {
+                    activateClocks();
+                }
                 announcements.setText("Bye! I hope you enjoyed the animation!");
+                announcements.setFont(titleFont);
                 announcements.setForeground(Color.black);
 
                 closeTimer.start();
@@ -325,6 +386,7 @@ public class BouncingFrame extends JFrame {
                 ballYField.setText(df.format(currentPositionY));
                 startButton.setText("Start");
                 announcements.setText("");
+                instructions2.setForeground(Color.black);
 
                 refreshRateField.setText("");
                 speedField.setText("");
@@ -333,6 +395,8 @@ public class BouncingFrame extends JFrame {
                 refreshRateField.setEditable(true);
                 speedField.setEditable(true);
                 directionField.setEditable(true);
+                increaseButton.setEnabled(true);
+                decreaseButton.setEnabled(true);
                 if (active) {
                     activateClocks();
                     currentPositionX = (double) frameWidth / 2;
@@ -357,6 +421,9 @@ public class BouncingFrame extends JFrame {
                             refreshRateField.setEditable(false);
                             speedField.setEditable(false);
                             directionField.setEditable(false);
+                            // decreaseButton.setEnabled(false);
+                            // increaseButton.setEnabled(false);
+
                             startButton.setText("Pause");
                             activateClocks();
                             // pass
@@ -370,12 +437,33 @@ public class BouncingFrame extends JFrame {
                     activateClocks();
                 }
             }
+            else if (event.getSource() == increaseButton) {
+                graphicsPanel.increaseSize();
+                currentPositionX = graphicsPanel.getBallLocX();
+                currentPositionY = graphicsPanel.getBallLocY();
+                ballXField.setText(df.format(graphicsPanel.getBallLocX()));
+                ballYField.setText(df.format(graphicsPanel.getBallLocY()));
+            }
+            else if (event.getSource() == decreaseButton) {
+                graphicsPanel.decreaseSize(currentPositionX, currentPositionY);   
+                ballXField.setText(df.format(graphicsPanel.getBallLocX()));
+                ballYField.setText(df.format(graphicsPanel.getBallLocY()));
+            }
+            else if (event.getSource() == colorChoiceOne) {
+                String chosenColor = colorChoiceOne.getSelectedItem().toString();
+                Color newColor = convertStrToColor(chosenColor);
+                graphicsPanel.setColorOne(newColor);
+            }
+            else if (event.getSource() == colorChoiceTwo) {
+                String chosenColor = colorChoiceTwo.getSelectedItem().toString();
+                Color newColor = convertStrToColor(chosenColor);
+                graphicsPanel.setColorTwo(newColor);
+            }
         }
     }
 
     private class ClockHandlerClass implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            boolean contAnimation = false;
             if (event.getSource() == refreshClock) {
                 graphicsPanel.repaint();
             } else if (event.getSource() == motionClock) {
@@ -384,6 +472,7 @@ public class BouncingFrame extends JFrame {
                     graphicsPanel.moveball(currentPositionX, currentPositionY);
                     currentPositionX = graphicsPanel.getBallLocX();
                     currentPositionY = graphicsPanel.getBallLocY();
+
                     ballXField.setText(df.format(currentPositionX));
                     ballYField.setText(df.format(currentPositionY));
                 }
@@ -425,7 +514,7 @@ public class BouncingFrame extends JFrame {
         colorTimer = new Timer(colorChangeInterval, clockHandler);
     }
 
-    private static boolean checkNum(String testString) {
+    private static boolean checkNum(String testString) { //validate input as numbers
         boolean isValid = true;
         try {
             Double.parseDouble(testString);
@@ -437,5 +526,38 @@ public class BouncingFrame extends JFrame {
             isValid = false;
         }
         return isValid;
+    }
+
+    private static Color convertStrToColor(String colorString) {
+        if (colorString.equals("yellow")) {
+            return Color.yellow;
+        }
+        else if (colorString.equals("blue")) {
+            return Color.blue;
+        }
+        else if (colorString.equals("cyan")) {
+            return Color.cyan;
+        }
+        else if (colorString.equals("gray")) {
+            return Color.gray;
+        }
+        else if (colorString.equals("green")) {
+            return Color.green;
+        }
+        else if (colorString.equals("magenta")) {
+            return Color.magenta;
+        }
+        else if (colorString.equals("pink")) {
+            return Color.pink;
+        }
+        else if (colorString.equals("red")) {
+            return Color.red;
+        }
+        else if (colorString.equals("orange")) {
+            return Color.orange;
+        }
+        else {
+            return Color.white;
+        }
     }
 }

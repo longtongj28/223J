@@ -3,6 +3,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.sound.midi.SysexMessage;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.event.ActionListener;
@@ -38,15 +39,17 @@ public class BouncingPanel extends JPanel {
     private double dbottom;
 
     private boolean colorOne = true;
+    private Color colorChoiceOne = Color.yellow;
+    private Color colorChoiceTwo = Color.blue;
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
         if (colorOne) {
-            g2.setColor(Color.yellow);
+            g2.setColor(colorChoiceOne);
         }
         else {
-            g2.setColor(Color.blue);
+            g2.setColor(colorChoiceTwo);
         }
 
         if (initialize) {
@@ -68,6 +71,62 @@ public class BouncingPanel extends JPanel {
         colorOne = !colorOne;
     }
 
+    public void increaseSize() {
+        ballradius += 3.0;
+        balldiameter = ballradius * 2.0;
+        dright = frameWidth - ball_center_x - ballradius;
+        dleft = 0 - ball_center_x + ballradius;
+        dbottom = frameHeight - ball_center_y - ballradius;
+        dtop = 0 - ball_center_y + ballradius;
+
+        if (dbottom < 0) { // bigger than the bottom, get current bottom = bottom border
+           ball_center_y = ball_center_y + dbottom;
+           ball_upper_corner_y = ball_center_y - ballradius;
+           ball_upper_corner_integer_y = (int)Math.round(ball_upper_corner_y);
+        }
+        else if (dtop > 0) { // bigger than top
+            ball_center_y = ball_center_y + dtop;
+            ball_upper_corner_y = ball_center_y - ballradius;
+            ball_upper_corner_integer_y = (int)Math.round(ball_upper_corner_y);
+        }
+        else {
+            ball_upper_corner_integer_y = (int)Math.round(ball_center_y - ballradius);
+        }
+
+        if (dright < 0) { //bigger than right side
+            ball_center_x = ball_center_x + dright;
+            ball_upper_corner_x = ball_center_x - ballradius;
+            ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);
+        }
+        else if (dleft > 0) {
+            ball_center_x = ball_center_x + dleft;
+            ball_upper_corner_x = ball_center_x - ballradius;
+            ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);
+        }
+        else {
+            ball_upper_corner_integer_x = (int)Math.round(ball_center_x - ballradius);
+        }
+        repaint();
+    }
+
+    public void decreaseSize(double currX, double currY) {
+        if (ballradius > 5) {
+            ballradius -= 3.0;
+            balldiameter = ballradius * 2.0;
+            ball_upper_corner_integer_x = (int)Math.round(currX - ballradius);
+            ball_upper_corner_integer_y = (int)Math.round(currY - ballradius);
+            repaint();
+        }
+    }
+
+    public void setColorOne(Color newChoice) {
+        colorChoiceOne = newChoice;
+        repaint();
+    }    
+    public void setColorTwo(Color newChoice) {
+        colorChoiceTwo = newChoice;
+        repaint();
+    }
     public void moveball(double posX, double posY) {
         dright = frameWidth - posX - ballradius;
         dleft = 0 - posX + ballradius;
@@ -77,7 +136,7 @@ public class BouncingPanel extends JPanel {
         if (dright < dx || dleft > dx) {
             if (dright < dx) { // going to overtake the right border
                 ball_center_x = frameWidth - ballradius;
-                ball_upper_corner_x = ball_center_x + ballradius;
+                ball_upper_corner_x = ball_center_x - ballradius;
             }
             else { // overtaking left side
                 ball_center_x = 0 + ballradius;
@@ -130,10 +189,7 @@ public class BouncingPanel extends JPanel {
         ball_center_y = (double) height/2;
         ball_upper_corner_integer_x = point1x - (int) ballradius;
         ball_upper_corner_integer_y = point1y - (int) ballradius;
-        // System.out.println(point1x);
-        // System.out.println(point1y);
         initialize = true;
         repaint();
     }
-
 }
