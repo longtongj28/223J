@@ -1,8 +1,11 @@
+#!/bin/bash
+
 #Program Name: Bouncing Animation
 #Author: Johnson Tong
 #Email: jt28@csu.fullerton.edu
 #File Name: run.sh
 #Execution: sh run.sh
+
 echo remove old byte-code files
 rm *.class
 
@@ -22,3 +25,6 @@ echo Execute program
 java BouncingDriver
 
 echo finished
+
+echo clean up
+rm *.class

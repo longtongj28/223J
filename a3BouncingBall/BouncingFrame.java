@@ -1,3 +1,34 @@
+//****************************************************************************************************************************
+//Program name: "Bouncing Animation". The program showcases a ball that can be resized and have its colors changed during
+// animation time. When the ball reaches a side of the panel, it will bounce in the opposite direction.
+// Copyright 2021 Johnson Tong.
+//                                                                                                                           * 
+//This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
+//version 3 as published by the Free Software Foundation.  This program is distributed in the hope that it will be useful,   *
+//but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See   *
+//the GNU General Public License for more details.  A copy of the GNU General Public License v3 is available here:           *
+//<https://www.gnu.org/licenses/>.                                                                                           *
+//****************************************************************************************************************************
+
+//Ruler:=1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+
+//Author: Johnson Tong
+//Email: jt28@fullerton.edu
+
+//Program information
+  //Program name: Bouncing Animation
+  //Programming language: Java
+  //Files in this program (4): run.sh (bash script) BouncingDriver.java (Driver) BouncingFrame.java (main UI design) 
+  //                       BouncingPanel.java (JPanel modified to show animations)
+  //Date project began: March 12, 2021
+  //Date of last update: March 27, 2021
+  //Status: Ready for public posting.  The program was tested significantly and did very well.                    
+  //Purpose: This program demonstrates a ball that can change direction when hitting a wall, and change colors during animation.
+//
+//This module
+  //File name: BouncingFrame.java
+  //Purpose:  This file designs the overall UI of the program and sets up the clocks for animations.
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -95,7 +126,7 @@ public class BouncingFrame extends JFrame {
     private Timer closeTimer;
     private int timeToClose = 1200;
     private Timer colorTimer;
-    private int colorChangeInterval = 300;
+    private int colorChangeInterval = 500;
     //Decimal Format
     private DecimalFormat df = new DecimalFormat("0.000");
     // information needed for animation
@@ -156,7 +187,7 @@ public class BouncingFrame extends JFrame {
         instructions2.setHorizontalAlignment(JLabel.CENTER);
         instructions2.setFont(instructionFont);
 
-        announcements = new JLabel("");
+        announcements = new JLabel("Try changing the color and size while the ball is bouncing!");
         announcements.setFont(instructionFont);
         announcements.setHorizontalAlignment(JLabel.CENTER);
 
@@ -385,7 +416,7 @@ public class BouncingFrame extends JFrame {
                 ballXField.setText(df.format(currentPositionX));
                 ballYField.setText(df.format(currentPositionY));
                 startButton.setText("Start");
-                announcements.setText("");
+                announcements.setText("Try changing the color and size while the ball is bouncing!");
                 instructions2.setForeground(Color.black);
 
                 refreshRateField.setText("");
@@ -397,12 +428,14 @@ public class BouncingFrame extends JFrame {
                 directionField.setEditable(true);
                 increaseButton.setEnabled(true);
                 decreaseButton.setEnabled(true);
+
+                currentPositionX = (double) frameWidth / 2;
+                currentPositionY = (double) graphicsHeight / 2;
+                ballXField.setText(df.format(currentPositionX));
+                ballYField.setText(df.format(currentPositionY));
+
                 if (active) {
                     activateClocks();
-                    currentPositionX = (double) frameWidth / 2;
-                    currentPositionY = (double) graphicsHeight / 2;
-                    ballXField.setText(df.format(currentPositionX));
-                    ballYField.setText(df.format(currentPositionY));
                 }
                 active = false;
             } else if (event.getSource() == startButton) {
@@ -418,15 +451,14 @@ public class BouncingFrame extends JFrame {
                             announcements.setText("Please enter valid numbers!");
                         } else { // this is a successful start, after all conditionas are met.
                             setInitialAnimationVals();
+                            announcements.setText("Try changing the color and size while the ball is bouncing!");
+                            announcements.setForeground(Color.black);
                             refreshRateField.setEditable(false);
                             speedField.setEditable(false);
                             directionField.setEditable(false);
-                            // decreaseButton.setEnabled(false);
-                            // increaseButton.setEnabled(false);
 
                             startButton.setText("Pause");
                             activateClocks();
-                            // pass
                         }
                     }
                 } else if (startButton.getText().equals("Pause")) {
@@ -467,7 +499,6 @@ public class BouncingFrame extends JFrame {
             if (event.getSource() == refreshClock) {
                 graphicsPanel.repaint();
             } else if (event.getSource() == motionClock) {
-                // contAnimation = graphicsPanel.moveBall();
                 if (active) {
                     graphicsPanel.moveball(currentPositionX, currentPositionY);
                     currentPositionX = graphicsPanel.getBallLocX();
@@ -501,7 +532,7 @@ public class BouncingFrame extends JFrame {
         // in radians
         angle = Math.toRadians(Double.parseDouble(directionField.getText()));
         dx = Math.cos(angle) * ball_speed_pix_per_tic;
-        dy = Math.sin(angle) * ball_speed_pix_per_tic;
+        dy = -1 * Math.sin(angle) * ball_speed_pix_per_tic;
         graphicsPanel.setDifferentials(dx, dy);
         graphicsPanel.reset(graphicsHeight, frameWidth);
         // Create a refresh clock

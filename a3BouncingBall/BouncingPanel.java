@@ -1,3 +1,36 @@
+//****************************************************************************************************************************
+//Program name: "Bouncing Animation". The program showcases a ball that can be resized and have its colors changed during
+// animation time. When the ball reaches a side of the panel, it will bounce in the opposite direction.
+// Copyright 2021 Johnson Tong.
+//                                                                                                                           * 
+//This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
+//version 3 as published by the Free Software Foundation.  This program is distributed in the hope that it will be useful,   *
+//but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See   *
+//the GNU General Public License for more details.  A copy of the GNU General Public License v3 is available here:           *
+//<https://www.gnu.org/licenses/>.                                                                                           *
+//****************************************************************************************************************************
+
+//Ruler:=1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+
+//Author: Johnson Tong
+//Email: jt28@fullerton.edu
+
+//Program information
+  //Program name: Bouncing Animation
+  //Programming language: Java
+  //Files in this program (4): run.sh (bash script) BouncingDriver.java (Driver) BouncingFrame.java (main UI design) 
+  //                       BouncingPanel.java (JPanel modified to show animations)
+  //Date project began: March 12, 2021
+  //Date of last update: March 27, 2021
+  //Status: Ready for public posting.  The program was tested significantly and did very well.                    
+  //Purpose: This program demonstrates a ball that can change direction when hitting a wall, and change colors during animation.
+//
+//This module
+  //File name: BouncingPanel.java
+  //Purpose:  This file modifies the JPanel class and utilizes the graphics object to draw a ball and give characteristics
+  //           to allow the ball to bounce off of walls and change color.
+
+
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -72,46 +105,48 @@ public class BouncingPanel extends JPanel {
     }
 
     public void increaseSize() {
-        ballradius += 3.0;
-        balldiameter = ballradius * 2.0;
-        dright = frameWidth - ball_center_x - ballradius;
-        dleft = 0 - ball_center_x + ballradius;
-        dbottom = frameHeight - ball_center_y - ballradius;
-        dtop = 0 - ball_center_y + ballradius;
+        if (balldiameter < (frameHeight - 50)) {
+            ballradius += 4.0;
+            balldiameter = ballradius * 2.0;
+            dright = frameWidth - ball_center_x - ballradius;
+            dleft = 0 - ball_center_x + ballradius;
+            dbottom = frameHeight - ball_center_y - ballradius;
+            dtop = 0 - ball_center_y + ballradius;
 
-        if (dbottom < 0) { // bigger than the bottom, get current bottom = bottom border
-           ball_center_y = ball_center_y + dbottom;
-           ball_upper_corner_y = ball_center_y - ballradius;
-           ball_upper_corner_integer_y = (int)Math.round(ball_upper_corner_y);
-        }
-        else if (dtop > 0) { // bigger than top
-            ball_center_y = ball_center_y + dtop;
+            if (dbottom < 0) { // bigger than the bottom, get current bottom = bottom border
+            ball_center_y = ball_center_y + dbottom;
             ball_upper_corner_y = ball_center_y - ballradius;
             ball_upper_corner_integer_y = (int)Math.round(ball_upper_corner_y);
-        }
-        else {
-            ball_upper_corner_integer_y = (int)Math.round(ball_center_y - ballradius);
-        }
+            }
+            else if (dtop > 0) { // bigger than top
+                ball_center_y = ball_center_y + dtop;
+                ball_upper_corner_y = ball_center_y - ballradius;
+                ball_upper_corner_integer_y = (int)Math.round(ball_upper_corner_y);
+            }
+            else {
+                ball_upper_corner_integer_y = (int)Math.round(ball_center_y - ballradius);
+            }
 
-        if (dright < 0) { //bigger than right side
-            ball_center_x = ball_center_x + dright;
-            ball_upper_corner_x = ball_center_x - ballradius;
-            ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);
+            if (dright < 0) { //bigger than right side
+                ball_center_x = ball_center_x + dright;
+                ball_upper_corner_x = ball_center_x - ballradius;
+                ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);
+            }
+            else if (dleft > 0) {
+                ball_center_x = ball_center_x + dleft;
+                ball_upper_corner_x = ball_center_x - ballradius;
+                ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);
+            }
+            else {
+                ball_upper_corner_integer_x = (int)Math.round(ball_center_x - ballradius);
+            }
+            repaint();
         }
-        else if (dleft > 0) {
-            ball_center_x = ball_center_x + dleft;
-            ball_upper_corner_x = ball_center_x - ballradius;
-            ball_upper_corner_integer_x = (int)Math.round(ball_upper_corner_x);
-        }
-        else {
-            ball_upper_corner_integer_x = (int)Math.round(ball_center_x - ballradius);
-        }
-        repaint();
     }
 
     public void decreaseSize(double currX, double currY) {
         if (ballradius > 5) {
-            ballradius -= 3.0;
+            ballradius -= 4.0;
             balldiameter = ballradius * 2.0;
             ball_upper_corner_integer_x = (int)Math.round(currX - ballradius);
             ball_upper_corner_integer_y = (int)Math.round(currY - ballradius);
@@ -137,10 +172,12 @@ public class BouncingPanel extends JPanel {
             if (dright < dx) { // going to overtake the right border
                 ball_center_x = frameWidth - ballradius;
                 ball_upper_corner_x = ball_center_x - ballradius;
+                repaint();
             }
             else { // overtaking left side
                 ball_center_x = 0 + ballradius;
                 ball_upper_corner_x = ball_center_x - ballradius;
+                repaint();
             }
             dx = -dx;
         }
@@ -153,10 +190,12 @@ public class BouncingPanel extends JPanel {
             if(dbottom < dy) { // overtaking the bottom border
                 ball_center_y = frameHeight - ballradius;
                 ball_upper_corner_y = ball_center_y - ballradius;
+                repaint();
             }
             else {  //overtaking the top border
                 ball_center_y = 0 + ballradius;
                 ball_upper_corner_y = ball_center_y - ballradius;
+                repaint();
             }
             dy = -dy;
         }
@@ -165,10 +204,7 @@ public class BouncingPanel extends JPanel {
             ball_upper_corner_y = ball_center_y - ballradius;
         }
 
-        // ball_center_x += dx;
-        // ball_upper_corner_x = ball_center_x - ballradius;
-        // ball_center_y += dy;
-        // ball_upper_corner_y = ball_center_y - ballradius;
+
         ball_upper_corner_integer_y = (int) Math.round(ball_upper_corner_y);
         ball_upper_corner_integer_x = (int) Math.round(ball_upper_corner_x);
     }
