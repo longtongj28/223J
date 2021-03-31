@@ -54,40 +54,79 @@ public class BouncingPanel extends JPanel {
     private int frameHeight;
     private int frameWidth;
 
-    // mouse information
     private double ball_center_x;
     private double ball_center_y;
     private double ball_upper_corner_x;
     private double ball_upper_corner_y;
     private int ball_upper_corner_integer_x;
     private int ball_upper_corner_integer_y;
+    private int center_int_x;
+    private int center_int_y;
     private double dx;
     private double dy;
 
+    // Cat information
+    private double cat_radius = 30;
+    private double cat_diameter = cat_radius * 2;
+    private double cat_center_x = 30;
+    private double cat_center_y = 30;
+    private double cat_upper_corner_x = 0.0;
+    private double cat_upper_corner_y = 0.0;
+    private int cat_center_int_x;
+    private int cat_center_int_y;
+    private int cat_upper_corner_integer_x = 0;
+    private int cat_upper_corner_integer_y = 0;
+    private double cat_dx;
+    private double cat_dy;
+
+    // distance between the two things:
+    private double distance_between;
+
     private boolean initialize = false;
 
+    // mouse distance relative to borders
     private double dright;
     private double dleft;
     private double dtop;
     private double dbottom;
 
-    private boolean colorOne = true;
-    private Color colorChoiceOne = Color.yellow;
-    private Color colorChoiceTwo = Color.blue;
+    // cat distance relative to borders
+    private double cat_dright;
+    private double cat_dleft;
+    private double cat_dtop;
+    private double cat_dbottom;
 
+    private boolean colorOne = true;
+    private Color colorChoiceOne = Color.cyan;
+    private Color colorChoiceTwo = Color.green;
+
+    private boolean entering  = false;
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-        if (colorOne) {
-            g2.setColor(colorChoiceOne);
-        } else {
-            g2.setColor(colorChoiceTwo);
-        }
+        // if (colorOne) {
+        // g2.setColor(colorChoiceOne);
+        // }
+        // else {
+        // g2.setColor(colorChoiceTwo);
+        // }
 
         if (initialize) {
+            g2.setColor(colorChoiceTwo);
+            g2.fillOval(cat_upper_corner_integer_x, cat_upper_corner_integer_y, (int) Math.round(cat_diameter),
+                    (int) Math.round(cat_diameter));
+            g2.setColor(colorChoiceOne);
             g2.fillOval(ball_upper_corner_integer_x, ball_upper_corner_integer_y, (int) Math.round(balldiameter),
                     (int) Math.round(balldiameter));
+            
+            g2.setColor(Color.white);
+            cat_center_int_x = (int) cat_center_x;
+            cat_center_int_y = (int) cat_center_y;
+            center_int_x = (int) ball_center_x;
+            center_int_y = (int) ball_center_y;
+            g2.drawLine(cat_center_int_x, cat_center_int_y, center_int_x, center_int_y);
+
         }
     }
 
@@ -95,59 +134,26 @@ public class BouncingPanel extends JPanel {
         return initialize;
     }
 
+    public double calcDistance() {
+        distance_between = Math.sqrt(Math.pow(ball_center_x - cat_center_x, 2) + Math.pow(ball_center_y-cat_center_y, 2));
+        return distance_between;
+    }
+    public boolean tooClose() {
+        return (distance_between <= (ballradius + cat_radius + 1.0));
+    }
+
     public void setDifferentials(double sx, double sy) {
         dx = sx;
         dy = sy;
     }
 
+    public void setCatDifferentials(double sx, double sy) {
+        cat_dx = sx;
+        cat_dy = sy;
+    }
+
     public void changeColor() {
         colorOne = !colorOne;
-    }
-
-    public void increaseSize() {
-        if (balldiameter < (frameHeight - 50)) {
-            ballradius += 4.0;
-            balldiameter = ballradius * 2.0;
-            dright = frameWidth - ball_center_x - ballradius;
-            dleft = 0 - ball_center_x + ballradius;
-            dbottom = frameHeight - ball_center_y - ballradius;
-            dtop = 0 - ball_center_y + ballradius;
-
-            if (dbottom < 0) { // bigger than the bottom, get current bottom = bottom border
-                ball_center_y = ball_center_y + dbottom;
-                ball_upper_corner_y = ball_center_y - ballradius;
-                ball_upper_corner_integer_y = (int) Math.round(ball_upper_corner_y);
-            } else if (dtop > 0) { // bigger than top
-                ball_center_y = ball_center_y + dtop;
-                ball_upper_corner_y = ball_center_y - ballradius;
-                ball_upper_corner_integer_y = (int) Math.round(ball_upper_corner_y);
-            } else {
-                ball_upper_corner_integer_y = (int) Math.round(ball_center_y - ballradius);
-            }
-
-            if (dright < 0) { // bigger than right side
-                ball_center_x = ball_center_x + dright;
-                ball_upper_corner_x = ball_center_x - ballradius;
-                ball_upper_corner_integer_x = (int) Math.round(ball_upper_corner_x);
-            } else if (dleft > 0) {
-                ball_center_x = ball_center_x + dleft;
-                ball_upper_corner_x = ball_center_x - ballradius;
-                ball_upper_corner_integer_x = (int) Math.round(ball_upper_corner_x);
-            } else {
-                ball_upper_corner_integer_x = (int) Math.round(ball_center_x - ballradius);
-            }
-            repaint();
-        }
-    }
-
-    public void decreaseSize(double currX, double currY) {
-        if (ballradius > 5) {
-            ballradius -= 4.0;
-            balldiameter = ballradius * 2.0;
-            ball_upper_corner_integer_x = (int) Math.round(currX - ballradius);
-            ball_upper_corner_integer_y = (int) Math.round(currY - ballradius);
-            repaint();
-        }
     }
 
     public void setColorOne(Color newChoice) {
@@ -166,18 +172,29 @@ public class BouncingPanel extends JPanel {
         dbottom = frameHeight - posY - ballradius;
         dtop = 0 - posY + ballradius;
         // when the ball reaches a border
-        if (dright < dx || dleft > dx) {
-            if (dright < dx) { // going to overtake the right border
-                ball_center_x = frameWidth - ballradius;
-                ball_upper_corner_x = ball_center_x - ballradius;
-                repaint();
-            } else { // overtaking left side
-                ball_center_x = 0 + ballradius;
-                ball_upper_corner_x = ball_center_x - ballradius;
-                repaint();
-            }
-            dx = -dx;
-        } else {
+        // if (dright < dx || dleft > dx) {
+            // if (dright < dx) { // going to overtake the right border
+            //     ball_center_x = ballradius;
+            //     ball_upper_corner_x = ball_center_x - ballradius;
+            //     repaint();
+            // } else { // overtaking left side
+            //     ball_center_x = frameWidth;
+            //     ball_upper_corner_x = ball_center_x - ballradius;
+            //     repaint();
+            // }
+        if(ball_upper_corner_x >= frameWidth){
+            ball_center_x = 0 - ballradius;
+            ball_upper_corner_x = 0 - balldiameter;
+            entering = true;
+        }
+        else if (entering && ball_upper_corner_x >= 0) {
+            entering = false;
+        }
+        else if (ball_upper_corner_x + ballradius < 0 && !entering) {
+            ball_center_x = frameWidth - ballradius;
+            ball_upper_corner_x = frameWidth - balldiameter;
+        }
+        else {
             ball_center_x += dx;
             ball_upper_corner_x = ball_center_x - ballradius;
         }
@@ -197,11 +214,53 @@ public class BouncingPanel extends JPanel {
             ball_center_y += dy;
             ball_upper_corner_y = ball_center_y - ballradius;
         }
-
         ball_upper_corner_integer_y = (int) Math.round(ball_upper_corner_y);
         ball_upper_corner_integer_x = (int) Math.round(ball_upper_corner_x);
     }
 
+    public void moveCat(double catSpeed) {
+        cat_dx = catSpeed*(ball_center_x - cat_center_x) / distance_between;
+        cat_dy = catSpeed*(ball_center_y - cat_center_y) / distance_between;
+
+        cat_dright = frameWidth - cat_center_x - cat_radius;
+        cat_dleft = 0 - cat_center_x + cat_radius;
+        cat_dbottom = frameHeight - cat_center_y - cat_radius;
+        cat_dtop = 0 - cat_center_y + cat_radius;
+
+        if (cat_dright < cat_dx || cat_dleft > cat_dx) {
+            if (cat_dright < cat_dx) { // going to overtake the right border
+                cat_center_x = frameWidth - cat_radius;
+                cat_upper_corner_x = cat_center_x - cat_radius;
+                repaint();
+            } else { // overtaking left side
+                cat_center_x = 0 + cat_radius;
+                cat_upper_corner_x = cat_center_x - cat_radius;
+                repaint();
+            }
+            cat_dx = -cat_dx;
+        } else {
+            cat_center_x += cat_dx;
+            cat_upper_corner_x = cat_center_x - cat_radius;
+        }
+
+        if (cat_dbottom < cat_dy || cat_dtop > cat_dy) {
+            if (cat_dbottom < cat_dy) { // overtaking the bottom border
+                cat_center_y = frameHeight - cat_radius;
+                cat_upper_corner_y = cat_center_y - cat_radius;
+                repaint();
+            } else { // overtaking the top border
+                cat_center_y = 0 + cat_radius;
+                cat_upper_corner_y = cat_center_y - cat_radius;
+                repaint();
+            }
+            cat_dy = -cat_dy;
+        } else {
+            cat_center_y += cat_dy;
+            cat_upper_corner_y = cat_center_y - cat_radius;
+        }
+        cat_upper_corner_integer_y = (int) Math.round(cat_upper_corner_y);
+        cat_upper_corner_integer_x = (int) Math.round(cat_upper_corner_x);
+    }
     public double getBallLocX() {
         return ball_center_x;
     }
@@ -210,16 +269,24 @@ public class BouncingPanel extends JPanel {
         return ball_center_y;
     }
 
-    public void reset(int height, int width) {
+    public void reset(int height, int width, double catPosX, double catPosY ) {
         frameHeight = height;
         frameWidth = width;
 
+        // mouse info
         point1x = width / 2;
         point1y = height / 2;
         ball_center_x = (double) width / 2;
         ball_center_y = (double) height / 2;
         ball_upper_corner_integer_x = point1x - (int) ballradius;
         ball_upper_corner_integer_y = point1y - (int) ballradius;
+
+        // cat info
+        cat_center_x = catPosX;
+        cat_center_y = catPosY;
+        cat_upper_corner_integer_x = 0;
+        cat_upper_corner_integer_y = 0;
+
         initialize = true;
         repaint();
     }
