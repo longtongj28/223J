@@ -60,8 +60,6 @@ public class BouncingPanel extends JPanel {
     private double ball_upper_corner_y;
     private int ball_upper_corner_integer_x;
     private int ball_upper_corner_integer_y;
-    private int center_int_x;
-    private int center_int_y;
     private double dx;
     private double dy;
 
@@ -72,15 +70,14 @@ public class BouncingPanel extends JPanel {
     private double cat_center_y = 30;
     private double cat_upper_corner_x = 0.0;
     private double cat_upper_corner_y = 0.0;
-    private int cat_center_int_x;
-    private int cat_center_int_y;
     private int cat_upper_corner_integer_x = 0;
     private int cat_upper_corner_integer_y = 0;
     private double cat_dx;
     private double cat_dy;
 
     // distance between the two things:
-    private double distance_between;
+    private double distance_between_center;
+    private double distance_between_edges;
 
     private boolean initialize = false;
 
@@ -101,17 +98,12 @@ public class BouncingPanel extends JPanel {
     private Color colorChoiceTwo = Color.green;
 
     private boolean entering  = false;
+    private boolean too_close = false;
+
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-        // if (colorOne) {
-        // g2.setColor(colorChoiceOne);
-        // }
-        // else {
-        // g2.setColor(colorChoiceTwo);
-        // }
-
         if (initialize) {
             g2.setColor(colorChoiceTwo);
             g2.fillOval(cat_upper_corner_integer_x, cat_upper_corner_integer_y, (int) Math.round(cat_diameter),
@@ -119,13 +111,6 @@ public class BouncingPanel extends JPanel {
             g2.setColor(colorChoiceOne);
             g2.fillOval(ball_upper_corner_integer_x, ball_upper_corner_integer_y, (int) Math.round(balldiameter),
                     (int) Math.round(balldiameter));
-            
-            g2.setColor(Color.white);
-            cat_center_int_x = (int) cat_center_x;
-            cat_center_int_y = (int) cat_center_y;
-            center_int_x = (int) ball_center_x;
-            center_int_y = (int) ball_center_y;
-            g2.drawLine(cat_center_int_x, cat_center_int_y, center_int_x, center_int_y);
 
         }
     }
@@ -135,11 +120,16 @@ public class BouncingPanel extends JPanel {
     }
 
     public double calcDistance() {
-        distance_between = Math.sqrt(Math.pow(ball_center_x - cat_center_x, 2) + Math.pow(ball_center_y-cat_center_y, 2));
-        return distance_between;
+        distance_between_center = Math.sqrt(Math.pow(ball_center_x - cat_center_x, 2) + Math.pow(ball_center_y-cat_center_y, 2));
+        return distance_between_center;
+    }
+    public double calcDistanceEdge() {
+        distance_between_edges = distance_between_center - ballradius - cat_radius;
+        return distance_between_edges;
     }
     public boolean tooClose() {
-        return (distance_between <= (ballradius + cat_radius + 1.0));
+        too_close = distance_between_edges <= 0;
+        return too_close;
     }
 
     public void setDifferentials(double sx, double sy) {
@@ -166,22 +156,15 @@ public class BouncingPanel extends JPanel {
         repaint();
     }
 
-    public void moveball(double posX, double posY) {
+    public void moveball(double posX, double posY, double distance_moved_in_one_tic) {
         dright = frameWidth - posX - ballradius;
         dleft = 0 - posX + ballradius;
         dbottom = frameHeight - posY - ballradius;
         dtop = 0 - posY + ballradius;
+
+        distance_between_center = calcDistance();
+        distance_between_edges = calcDistanceEdge();
         // when the ball reaches a border
-        // if (dright < dx || dleft > dx) {
-            // if (dright < dx) { // going to overtake the right border
-            //     ball_center_x = ballradius;
-            //     ball_upper_corner_x = ball_center_x - ballradius;
-            //     repaint();
-            // } else { // overtaking left side
-            //     ball_center_x = frameWidth;
-            //     ball_upper_corner_x = ball_center_x - ballradius;
-            //     repaint();
-            // }
         if(ball_upper_corner_x >= frameWidth){
             ball_center_x = 0 - ballradius;
             ball_upper_corner_x = 0 - balldiameter;
@@ -214,14 +197,30 @@ public class BouncingPanel extends JPanel {
             ball_center_y += dy;
             ball_upper_corner_y = ball_center_y - ballradius;
         }
+        
+        if(distance_moved_in_one_tic > distance_between_edges) {
+            //undo our previous move, it's too close
+            ball_center_x -= dx;
+            ball_center_y -= dy;
+            dx = ((cat_center_x - ball_center_x) * distance_between_edges)/distance_between_center;
+            dy = ((cat_center_y - ball_center_y) * distance_between_edges)/distance_between_center;
+            ball_center_x += dx;
+            ball_center_y += dy;
+            ball_upper_corner_x = ball_center_x - ballradius;
+            ball_upper_corner_y = ball_center_y - ballradius;
+        }
+
         ball_upper_corner_integer_y = (int) Math.round(ball_upper_corner_y);
         ball_upper_corner_integer_x = (int) Math.round(ball_upper_corner_x);
     }
-
+    
     public void moveCat(double catSpeed) {
-        cat_dx = catSpeed*(ball_center_x - cat_center_x) / distance_between;
-        cat_dy = catSpeed*(ball_center_y - cat_center_y) / distance_between;
+        distance_between_center = calcDistance();
+        distance_between_edges = calcDistanceEdge();
 
+        cat_dx = catSpeed*(ball_center_x - cat_center_x) / distance_between_center;
+        cat_dy = catSpeed*(ball_center_y - cat_center_y) / distance_between_center;
+        
         cat_dright = frameWidth - cat_center_x - cat_radius;
         cat_dleft = 0 - cat_center_x + cat_radius;
         cat_dbottom = frameHeight - cat_center_y - cat_radius;
@@ -258,6 +257,19 @@ public class BouncingPanel extends JPanel {
             cat_center_y += cat_dy;
             cat_upper_corner_y = cat_center_y - cat_radius;
         }
+        
+        if(catSpeed > distance_between_edges) {
+            //undo our previous move, it's too close
+            cat_center_x -= cat_dx;
+            cat_center_y -= cat_dy;
+            cat_dx = ((ball_center_x - cat_center_x) * distance_between_edges)/distance_between_center;
+            cat_dy = ((ball_center_y - cat_center_y) * distance_between_edges)/distance_between_center;
+            cat_center_x += cat_dx;
+            cat_center_y += cat_dy;
+            cat_upper_corner_x = cat_center_x - cat_radius;
+            cat_upper_corner_y = cat_center_y - cat_radius;
+        }
+
         cat_upper_corner_integer_y = (int) Math.round(cat_upper_corner_y);
         cat_upper_corner_integer_x = (int) Math.round(cat_upper_corner_x);
     }

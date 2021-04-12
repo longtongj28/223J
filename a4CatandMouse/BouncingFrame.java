@@ -81,7 +81,10 @@
       private String[] colorStrings = {"yellow", "blue", "cyan", "gray", "green",
                                        "magenta", "pink", "red", "white", "orange"};
       private JPanel colorPanel;
+      private JPanel colorPanelBottom;
       private JLabel colorLabel;
+      private JLabel mouseLabel;
+      private JLabel catLabel;
       private JComboBox colorChoiceOne;
       private JComboBox colorChoiceTwo;
   
@@ -154,6 +157,9 @@
       private double currentCatPositionY = (double) 30;
       private double distance_between;
       // end info for animation
+
+      private double mouseradius = 15;
+      private double catradius = 30;
   
       public BouncingFrame() {
           // frame information
@@ -225,7 +231,7 @@
           ballLocPanel.setBorder(ballLocBorder);
   
           ballLocationBoxFont = new Font("Liberation Sans", Font.BOLD, 18);
-          ballLocLabel = new JLabel("Distance between:");
+          ballLocLabel = new JLabel("Collision Distance:");
           ballLocLabel.setFont(ballLocationBoxFont);
   
           ballXPanel = new JPanel();
@@ -274,23 +280,35 @@
           directionField.setText("45.0");
           directionField.setHorizontalAlignment(JTextField.CENTER);
           directionField.setFont(ballLocationBoxFont);
-  
+
+          //color panel stuff here
           colorPanel = new JPanel();
-          colorPanel.setOpaque(false);
           colorPanel.setLayout(new BorderLayout());
           colorLabel = new JLabel("Color Choices: ");
+          colorLabel.setHorizontalAlignment(JLabel.CENTER);
+          colorLabel.setFont(ballLocationBoxFont);
+
+          colorPanelBottom = new JPanel();
+          mouseLabel = new JLabel("Mouse Color:");
+          mouseLabel.setFont(ballLocationBoxFont);
           colorChoiceOne = new JComboBox<>(colorStrings);
           colorChoiceOne.setSelectedIndex(2);
+          colorChoiceOne.setFont(ballLocationBoxFont);
+        
+          catLabel = new JLabel("Cat Color:");
+          catLabel.setFont(ballLocationBoxFont);
           colorChoiceTwo = new JComboBox<>(colorStrings);
           colorChoiceTwo.setSelectedIndex(4);
-          
-          colorLabel.setFont(ballLocationBoxFont);
-          colorChoiceOne.setFont(ballLocationBoxFont);
           colorChoiceTwo.setFont(ballLocationBoxFont);
+          
+          colorPanelBottom.add(mouseLabel);
+          colorPanelBottom.add(colorChoiceOne);
+          colorPanelBottom.add(catLabel);
+          colorPanelBottom.add(colorChoiceTwo);
+
           colorPanel.add(colorLabel, BorderLayout.NORTH);
-          colorPanel.add(colorChoiceTwo, BorderLayout.SOUTH);
-          colorPanel.add(colorChoiceOne);
-  
+          colorPanel.add(colorPanelBottom, BorderLayout.SOUTH);
+          // end color panel stuff
   
           inputRowPanel.setLayout(new GridBagLayout());
           GridBagConstraints inputRowGBC = new GridBagConstraints();
@@ -388,7 +406,7 @@
                   startButton.setEnabled(true);
                   graphicsPanel.reset(graphicsHeight, frameWidth, currentCatPositionX, currentCatPositionY);
                   distance_between = graphicsPanel.calcDistance();
-                  ballXField.setText(df.format(distance_between));
+                  ballXField.setText(df.format(distance_between - mouseradius - catradius));
                   startButton.setText("Start");
                   announcements.setText(recommend);
                   instructions2.setForeground(Color.black);
@@ -404,7 +422,6 @@
 
                   currentPositionX = (double) frameWidth / 2;
                   currentPositionY = (double) graphicsHeight / 2;
-                  ballXField.setText(df.format(distance_between));
   
                   if (active) {
                       activateClocks();
@@ -460,14 +477,13 @@
                   graphicsPanel.repaint();
               } else if (event.getSource() == motionClock) {
                   if (active) {
-                      graphicsPanel.moveball(currentPositionX, currentPositionY);
+                      graphicsPanel.moveball(currentPositionX, currentPositionY, ball_speed_pix_per_tic);
                       currentPositionX = graphicsPanel.getBallLocX();
                       currentPositionY = graphicsPanel.getBallLocY();
-                      
                   }
               } else if (event.getSource() == catMotionClock) {
                     distance_between = graphicsPanel.calcDistance();
-                    ballXField.setText(df.format(distance_between));
+                    ballXField.setText(df.format(distance_between - mouseradius - catradius));
                     if (graphicsPanel.tooClose()) { // The cat is too close, mouse lost
                         startButton.setText("Click Clear");
                         startButton.setEnabled(false);
