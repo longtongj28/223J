@@ -128,7 +128,6 @@ public class BouncingPanel extends JPanel {
         return distance_between_edges;
     }
     public boolean tooClose() {
-        too_close = distance_between_edges <= 0;
         return too_close;
     }
 
@@ -208,6 +207,7 @@ public class BouncingPanel extends JPanel {
             ball_center_y += dy;
             ball_upper_corner_x = ball_center_x - ballradius;
             ball_upper_corner_y = ball_center_y - ballradius;
+            too_close = true;
             repaint();
         }
 
@@ -269,6 +269,7 @@ public class BouncingPanel extends JPanel {
             cat_center_y += cat_dy;
             cat_upper_corner_x = cat_center_x - cat_radius;
             cat_upper_corner_y = cat_center_y - cat_radius;
+            too_close = true;
             repaint();
         }
 
@@ -286,6 +287,7 @@ public class BouncingPanel extends JPanel {
     public void reset(int height, int width, double catPosX, double catPosY ) {
         frameHeight = height;
         frameWidth = width;
+        too_close = false;
 
         // mouse info
         point1x = width / 2;
