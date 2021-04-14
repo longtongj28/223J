@@ -182,7 +182,7 @@
           aboutPanel = new JPanel();
           aboutDimensions = new Dimension(aboutWidth, aboutHeight);
           aboutPanel.setPreferredSize(aboutDimensions);
-          aboutPanel.setBackground(new Color(169, 222, 249));
+          aboutPanel.setBackground(new Color(194, 175, 240));
           aboutPanel.setLayout(new GridLayout(3, 1));
   
           Color borderColor = new Color(100, 17, 63);
@@ -215,7 +215,7 @@
   
           // buttons panel
           buttonsPanel = new JPanel();
-          buttonsPanel.setBackground(new Color(182, 214, 204));
+          buttonsPanel.setBackground(new Color(241, 232, 184));
           buttonsPanelDimensions = new Dimension(frameWidth, buttonsPanelHeight);
           buttonsPanel.setPreferredSize(buttonsPanelDimensions);
           // border

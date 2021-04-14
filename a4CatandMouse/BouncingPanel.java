@@ -208,6 +208,7 @@ public class BouncingPanel extends JPanel {
             ball_center_y += dy;
             ball_upper_corner_x = ball_center_x - ballradius;
             ball_upper_corner_y = ball_center_y - ballradius;
+            repaint();
         }
 
         ball_upper_corner_integer_y = (int) Math.round(ball_upper_corner_y);
@@ -268,6 +269,7 @@ public class BouncingPanel extends JPanel {
             cat_center_y += cat_dy;
             cat_upper_corner_x = cat_center_x - cat_radius;
             cat_upper_corner_y = cat_center_y - cat_radius;
+            repaint();
         }
 
         cat_upper_corner_integer_y = (int) Math.round(cat_upper_corner_y);
