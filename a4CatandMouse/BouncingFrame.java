@@ -1,6 +1,8 @@
 //****************************************************************************************************************************
-//Program name: "Bouncing Animation". The program showcases a ball that can be resized and have its colors changed during
-// animation time. When the ball reaches a side of the panel, it will bounce in the opposite direction.
+//Program name: "Cat and Mouse". This program demonstrates a mouse (the small ball) being chased by a Cat (the bigger ball).
+// The Cat must continuously change its differentials to match the position of the mouse and continue chasing it. The mouse
+// has a special trait, where it can jump through the left and right side of the panel. Once the Cat gets too close, the
+// animation ends and the Cat enjoys its dinner.
 // Copyright 2021 Johnson Tong.
 //                                                                                                                           * 
 //This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
@@ -16,18 +18,18 @@
 //Email: jt28@fullerton.edu
 
 //Program information
-  //Program name: Bouncing Animation
-  //Programming language: Java
-  //Files in this program (4): run.sh (bash script) BouncingDriver.java (Driver) BouncingFrame.java (main UI design) 
-  //                       BouncingPanel.java (JPanel modified to show animations)
-  //Date project began: March 12, 2021
-  //Date of last update: March 27, 2021
-  //Status: Ready for public posting.  The program was tested significantly and did very well.                    
-  //Purpose: This program demonstrates a ball that can change direction when hitting a wall, and change colors during animation.
+//Program name: Cat and Mouse
+//Programming language: Java
+//Files in this program (4): run.sh (bash script) BouncingDriver.java (Driver) BouncingFrame.java (main UI design) 
+//                       BouncingPanel.java (JPanel modified to show animations)
+//Date project began: April 1, 2021
+//Date of last update: April 18, 2021
+//Status: Ready for public posting.  The program was tested through many cases and works logically.           
+//Purpose: Demonstrate some low level physics in graphical objects through a fun interface.
 //
 //This module
-  //File name: BouncingFrame.java
-  //Purpose:  This file designs the overall UI of the program and sets up the clocks for animations.
+//File name: BouncingFrame.java
+//Purpose:  This file designs the overall UI of the program and sets up the clocks for animations.
 
   import java.awt.*;
   import javax.swing.*;
