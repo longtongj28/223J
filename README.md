@@ -11,3 +11,8 @@ Baseball Animation: primitive animation with JTimers to show a ball moving to co
 Bouncing Ball: animation showing ball bouncing off borders of a panel
 ### Assignment4:
 Cat and mouse: a cat chases a mouse. The cat's direction changes as the mouse moves. The mouse acts like the ball from assignment 3.
+### Assignment 5:
+Animation along a sin curve.
+### Exams:
+#### Exam 1: Triangle Calculations - basic UI. uses concepts from assignment 1.
+#### Exam 2: Solar System Final - animation concepts from assignment 2-5. Displays Earth, moon, mars, and sun in orbits.
